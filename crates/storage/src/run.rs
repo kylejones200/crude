@@ -273,10 +273,8 @@ mod tests {
 
     #[test]
     fn saved_run_includes_metadata() {
-        let dir = std::env::temp_dir().join(format!(
-            "crude-meta-test-{}",
-            Utc::now().timestamp_millis()
-        ));
+        let dir =
+            std::env::temp_dir().join(format!("crude-meta-test-{}", Utc::now().timestamp_millis()));
         let result = InventoryOptimizationOutput {
             scenario_name: "meta".into(),
             status: SolverStatus::Optimal,

@@ -57,11 +57,10 @@ pub fn optimize_inventory(
     scenario: &InventoryScenario,
 ) -> OptimizationResult<InventoryOptimizationOutput> {
     let solved = solve_inventory_lp(scenario)?;
-    let shadow_prices = estimate_inventory_shadow_prices(
-        scenario,
-        solved.objective_value_usd,
-        |s| solve_inventory_lp(s).map(|r| r.objective_value_usd),
-    );
+    let shadow_prices =
+        estimate_inventory_shadow_prices(scenario, solved.objective_value_usd, |s| {
+            solve_inventory_lp(s).map(|r| r.objective_value_usd)
+        });
 
     Ok(InventoryOptimizationOutput {
         scenario_name: scenario.name.clone(),
@@ -204,9 +203,9 @@ fn solve_inventory_lp(scenario: &InventoryScenario) -> OptimizationResult<Invent
         model = model.with(constraint!(total >= limits.receive_min * days));
     }
 
-    let solution = model.solve().map_err(|e| {
-        solver_failure(&e.to_string(), diagnose_inventory(scenario))
-    })?;
+    let solution = model
+        .solve()
+        .map_err(|e| solver_failure(&e.to_string(), diagnose_inventory(scenario)))?;
 
     validate_inventory_solution(scenario, &vi, &solution)?;
 

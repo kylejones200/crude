@@ -51,25 +51,17 @@ pub fn estimate_inventory_shadow_prices(
     }
 
     if let Ok(obj) = relaxed_charge_max(scenario, &solve) {
-        if let Some(sp) = shadow_from_relaxation(
-            "charge_max",
-            Some(0),
-            base_objective_usd,
-            obj,
-            bump_monthly,
-        ) {
+        if let Some(sp) =
+            shadow_from_relaxation("charge_max", Some(0), base_objective_usd, obj, bump_monthly)
+        {
             shadows.push(sp);
         }
     }
 
     if let Ok(obj) = relaxed_tank_cap(scenario, &solve) {
-        if let Some(sp) = shadow_from_relaxation(
-            "tank_cap",
-            None,
-            base_objective_usd,
-            obj,
-            BUMP_TANK_BBL,
-        ) {
+        if let Some(sp) =
+            shadow_from_relaxation("tank_cap", None, base_objective_usd, obj, BUMP_TANK_BBL)
+        {
             shadows.push(sp);
         }
     }
@@ -111,13 +103,9 @@ pub fn estimate_blend_schedule_shadow_prices(
     }
 
     if let Ok(obj) = relaxed_blend_charge_max(scenario, &solve) {
-        if let Some(sp) = shadow_from_relaxation(
-            "charge_max",
-            Some(0),
-            base_objective_usd,
-            obj,
-            bump_monthly,
-        ) {
+        if let Some(sp) =
+            shadow_from_relaxation("charge_max", Some(0), base_objective_usd, obj, bump_monthly)
+        {
             shadows.push(sp);
         }
     }

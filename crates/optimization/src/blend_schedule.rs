@@ -55,11 +55,10 @@ pub fn optimize_blend_schedule(
     scenario: &BlendScheduleScenario,
 ) -> OptimizationResult<BlendScheduleOutput> {
     let solved = solve_blend_schedule_lp(scenario)?;
-    let shadow_prices = estimate_blend_schedule_shadow_prices(
-        scenario,
-        solved.objective_value_usd,
-        |s| solve_blend_schedule_lp(s).map(|r| r.objective_value_usd),
-    );
+    let shadow_prices =
+        estimate_blend_schedule_shadow_prices(scenario, solved.objective_value_usd, |s| {
+            solve_blend_schedule_lp(s).map(|r| r.objective_value_usd)
+        });
 
     Ok(BlendScheduleOutput {
         scenario_name: scenario.name.clone(),
@@ -217,9 +216,9 @@ fn solve_blend_schedule_lp(
         }
     }
 
-    let solution = model.solve().map_err(|e| {
-        solver_failure(&e.to_string(), diagnose_blend_schedule(scenario))
-    })?;
+    let solution = model
+        .solve()
+        .map_err(|e| solver_failure(&e.to_string(), diagnose_blend_schedule(scenario)))?;
 
     let objective_value = compute_blend_objective(scenario, &bv, &solution);
 

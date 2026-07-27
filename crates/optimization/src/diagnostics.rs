@@ -10,7 +10,9 @@ pub struct InfeasibilityHint {
 }
 
 pub fn preflight_blend_schedule(scenario: &BlendScheduleScenario) -> Vec<InfeasibilityHint> {
-    bound_inversion_hints(&scenario.site_limits, scenario.months, |m| scenario.days_in_month(m))
+    bound_inversion_hints(&scenario.site_limits, scenario.months, |m| {
+        scenario.days_in_month(m)
+    })
 }
 
 pub fn diagnose_blend_schedule(scenario: &BlendScheduleScenario) -> Vec<InfeasibilityHint> {
@@ -50,7 +52,9 @@ pub fn diagnose_blend_schedule(scenario: &BlendScheduleScenario) -> Vec<Infeasib
 }
 
 pub fn preflight_inventory(scenario: &InventoryScenario) -> Vec<InfeasibilityHint> {
-    bound_inversion_hints(&scenario.site_limits, scenario.months, |m| scenario.days_in_month(m))
+    bound_inversion_hints(&scenario.site_limits, scenario.months, |m| {
+        scenario.days_in_month(m)
+    })
 }
 
 pub fn diagnose_inventory(scenario: &InventoryScenario) -> Vec<InfeasibilityHint> {
@@ -65,22 +69,13 @@ fn bound_inversion_hints(
     let mut hints = Vec::new();
 
     if limits.receive_min > limits.receive_max {
-        hints.push(hint(
-            "receive_bounds",
-            "receive_min exceeds receive_max",
-        ));
+        hints.push(hint("receive_bounds", "receive_min exceeds receive_max"));
     }
     if limits.charge_min > limits.charge_max {
-        hints.push(hint(
-            "charge_bounds",
-            "charge_min exceeds charge_max",
-        ));
+        hints.push(hint("charge_bounds", "charge_min exceeds charge_max"));
     }
     if limits.tank_floor > limits.tank_cap {
-        hints.push(hint(
-            "tank_bounds",
-            "tank_floor exceeds tank_cap",
-        ));
+        hints.push(hint("tank_bounds", "tank_floor exceeds tank_cap"));
     }
 
     for m in 0..months {
@@ -110,10 +105,7 @@ pub fn solver_failure(
         .iter()
         .map(|h| format!("[{}] {}", h.code, h.message))
         .collect();
-    OptimizationError::Infeasible(format!(
-        "{solver_message}\nhints:\n{}",
-        detail.join("\n")
-    ))
+    OptimizationError::Infeasible(format!("{solver_message}\nhints:\n{}", detail.join("\n")))
 }
 
 fn hint(code: &str, message: impl Into<String>) -> InfeasibilityHint {

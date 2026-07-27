@@ -85,12 +85,10 @@ fn blend_schedule_tiny_matches_python_golden() {
         .map(|r| r.inventory)
         .unwrap();
     assert!((end_inv - expected.ending_inventory_bbl).abs() < 1.0);
-    assert!(
-        result
-            .shadow_prices
-            .iter()
-            .all(|sp| sp.usd_per_bbl.is_finite())
-    );
+    assert!(result
+        .shadow_prices
+        .iter()
+        .all(|sp| sp.usd_per_bbl.is_finite()));
 }
 
 #[test]
@@ -142,12 +140,10 @@ fn inventory_refinery_includes_shadow_prices() {
     let scenario = InventoryScenario::from_yaml_file(&scenario_path).unwrap();
     let result = optimize_inventory(&scenario).unwrap();
     assert!(!result.shadow_prices.is_empty());
-    assert!(
-        result
-            .shadow_prices
-            .iter()
-            .all(|sp| sp.usd_per_bbl.is_finite())
-    );
+    assert!(result
+        .shadow_prices
+        .iter()
+        .all(|sp| sp.usd_per_bbl.is_finite()));
 }
 
 #[test]
