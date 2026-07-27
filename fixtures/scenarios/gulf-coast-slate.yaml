@@ -1,0 +1,33 @@
+name: gulf-coast-slate
+
+target_volume_bbl: 80000
+
+available_crudes:
+  - crude: wti
+    min_volume: 0
+    max_volume: 80000
+    price_per_bbl: 74.50
+
+  - crude: maya
+    min_volume: 10000
+    max_volume: 50000
+    price_per_bbl: 66.20
+
+crudes:
+  wti:
+    api_gravity: 39.6
+    sulfur_wt_pct: 0.24
+  maya:
+    api_gravity: 21.3
+    sulfur_wt_pct: 3.4
+
+products:
+  - name: crude_blend
+    constraints:
+      api_gravity:
+        min: 28
+      sulfur_wt_pct:
+        max: 1.5
+
+objective:
+  type: minimize_feed_cost

@@ -1,0 +1,17 @@
+[package]
+name = "crude-optimization"
+description = "Linear programming optimization for crude blending"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+crude-domain = { workspace = true }
+crude-scenarios = { workspace = true }
+crude-blending = { workspace = true }
+crude-constraints = { workspace = true }
+crude-economics = { workspace = true }
+good_lp = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }

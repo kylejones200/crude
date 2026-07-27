@@ -1,0 +1,8 @@
+{
+  "scenario": "blend-schedule-12month",
+  "objective_value_usd": 1069176444.4444444,
+  "total_purchase_bbl": 1835333.3333333333,
+  "purchase_months": 12,
+  "tolerance_objective_pct": 0.0001,
+  "status": "Optimal"
+}

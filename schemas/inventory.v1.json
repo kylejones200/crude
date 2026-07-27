@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/kylejones200/crude/schemas/inventory.v1.json",
+  "title": "InventoryScenario",
+  "type": "object",
+  "required": [
+    "name",
+    "start_year",
+    "start_month",
+    "months",
+    "site_limits",
+    "lead_times",
+    "initial_inventory",
+    "slate",
+    "monthly_prices"
+  ],
+  "properties": {
+    "name": { "type": "string" },
+    "start_year": { "type": "integer", "minimum": 2000 },
+    "start_month": { "type": "integer", "minimum": 1, "maximum": 12 },
+    "months": { "type": "integer", "minimum": 1 },
+    "site_limits": {
+      "type": "object",
+      "required": [
+        "receive_min",
+        "receive_max",
+        "charge_min",
+        "charge_max",
+        "tank_cap",
+        "tank_floor"
+      ]
+    },
+    "lead_times": {
+      "type": "object",
+      "required": ["foreign_m", "canada_m", "domestic_m"]
+    },
+    "initial_inventory": {
+      "type": "object",
+      "required": ["light", "medium", "heavy"]
+    },
+    "slate": {
+      "type": "object",
+      "required": ["light", "medium", "heavy"]
+    },
+    "monthly_prices": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["brent", "wti"]
+      }
+    }
+  }
+}

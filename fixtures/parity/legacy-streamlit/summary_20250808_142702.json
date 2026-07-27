@@ -1,0 +1,11 @@
+{
+  "status": "optimal",
+  "solver_status": "optimal",
+  "objective_value": 402763.9995574951,
+  "timestamp": "20250808_142702",
+  "files": {
+    "purchase_plan": "purchase_plan_20250808_142702.csv",
+    "inventory_plan": "inventory_plan_20250808_142702.csv",
+    "demand_plan": "demand_plan_20250808_142702.csv"
+  }
+}

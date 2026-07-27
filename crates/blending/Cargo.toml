@@ -1,0 +1,11 @@
+[package]
+name = "crude-blending"
+description = "Volume-weighted blend property calculation"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+crude-domain = { workspace = true }
+serde = { workspace = true }

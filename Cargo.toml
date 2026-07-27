@@ -1,0 +1,44 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/domain",
+    "crates/assay",
+    "crates/blending",
+    "crates/constraints",
+    "crates/economics",
+    "crates/optimization",
+    "crates/scenarios",
+    "crates/storage",
+    "apps/cli",
+    "apps/api",
+    "crates/integration-tests",
+]
+default-members = ["apps/cli"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+authors = ["Kyle Jones"]
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+thiserror = "2"
+clap = { version = "4", features = ["derive"] }
+good_lp = { version = "1", default-features = false, features = ["minilp"] }
+calamine = "0.26"
+chrono = { version = "0.4", features = ["serde"] }
+axum = "0.8"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+tower-http = { version = "0.6", features = ["cors"] }
+
+crude-domain = { path = "crates/domain" }
+crude-assay = { path = "crates/assay" }
+crude-blending = { path = "crates/blending" }
+crude-constraints = { path = "crates/constraints" }
+crude-economics = { path = "crates/economics" }
+crude-optimization = { path = "crates/optimization" }
+crude-scenarios = { path = "crates/scenarios" }
+crude-storage = { path = "crates/storage" }

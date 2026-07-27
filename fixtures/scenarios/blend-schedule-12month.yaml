@@ -1,0 +1,54 @@
+name: blend-schedule-12month
+start_year: 2025
+start_month: 1
+months: 12
+assays:
+  - name: Light
+    price_per_barrel: 70.0
+    source: domestic
+  - name: Heavy
+    price_per_barrel: 62.0
+    source: foreign
+candidates:
+  - name: RefineryBlend
+    target_percentage: 100.0
+    components:
+      - assay_name: Light
+        api_gravity: 38.0
+        sulfur_content: 0.45
+      - assay_name: Heavy
+        api_gravity: 28.0
+        sulfur_content: 1.8
+    min_api_gravity: 32.0
+    max_sulfur_content: 1.2
+target_specs:
+  api_gravity: 34.0
+  sulfur_content: 0.8
+  total_acid_number: 0.4
+initial_inventory:
+  Light: 40000.0
+  Heavy: 35000.0
+site_limits:
+  receive_min: 5000.0
+  receive_max: 80000.0
+  charge_min: 5000.0
+  charge_max: 60000.0
+  tank_cap: 400000.0
+  tank_floor: 8000.0
+lead_times:
+  foreign_m: 2
+  canada_m: 1
+  domestic_m: 1
+monthly_prices:
+  - { brent: 72.0, wti: 68.0 }
+  - { brent: 72.5, wti: 68.5 }
+  - { brent: 73.0, wti: 69.0 }
+  - { brent: 73.5, wti: 69.5 }
+  - { brent: 74.0, wti: 70.0 }
+  - { brent: 74.5, wti: 70.5 }
+  - { brent: 75.0, wti: 71.0 }
+  - { brent: 75.5, wti: 71.5 }
+  - { brent: 76.0, wti: 72.0 }
+  - { brent: 76.5, wti: 72.5 }
+  - { brent: 77.0, wti: 73.0 }
+  - { brent: 77.5, wti: 73.5 }

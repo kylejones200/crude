@@ -1,0 +1,27 @@
+[package]
+name = "crude-api"
+description = "Thin HTTP API for crude blending and optimization"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "crude-api"
+path = "src/main.rs"
+
+[dependencies]
+crude-domain = { workspace = true }
+crude-assay = { workspace = true }
+crude-blending = { workspace = true }
+base64 = "0.22"
+crude-constraints = { workspace = true }
+crude-economics = { workspace = true }
+crude-optimization = { workspace = true }
+crude-scenarios = { workspace = true }
+crude-storage = { workspace = true }
+axum = { version = "0.8", features = ["json"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tower-http = { version = "0.6", features = ["cors"] }

@@ -1,0 +1,23 @@
+[package]
+name = "crude-integration-tests"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+crude-domain = { workspace = true }
+crude-assay = { workspace = true }
+crude-blending = { workspace = true }
+crude-constraints = { workspace = true }
+crude-optimization = { workspace = true }
+crude-scenarios = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[[test]]
+name = "vertical_path"
+path = "../../tests/vertical_path.rs"
+
+[[test]]
+name = "parity"
+path = "../../tests/parity.rs"

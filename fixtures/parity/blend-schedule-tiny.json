@@ -1,0 +1,7 @@
+{
+  "scenario": "blend-schedule-tiny",
+  "objective_value_usd": 282700000.0,
+  "total_purchase_bbl": 310000.0,
+  "ending_inventory_bbl": 1000.0,
+  "status": "Optimal"
+}

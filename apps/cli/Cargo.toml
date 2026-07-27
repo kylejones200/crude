@@ -1,0 +1,25 @@
+[package]
+name = "crude-cli"
+description = "Command-line interface for crude blending and optimization"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "crude"
+path = "src/main.rs"
+
+[dependencies]
+crude-domain = { workspace = true }
+crude-assay = { workspace = true }
+crude-blending = { workspace = true }
+crude-constraints = { workspace = true }
+crude-economics = { workspace = true }
+crude-optimization = { workspace = true }
+crude-scenarios = { workspace = true }
+crude-storage = { workspace = true }
+clap = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_yaml = { workspace = true }

@@ -1,0 +1,37 @@
+name: blend-schedule-tiny
+start_year: 2025
+start_month: 1
+months: 1
+assays:
+  - name: Light
+    price_per_barrel: 70.0
+    source: domestic
+candidates:
+  - name: BlendA
+    target_percentage: 100.0
+    components:
+      - assay_name: Light
+        api_gravity: 38.0
+        sulfur_content: 0.5
+    min_api_gravity: 35.0
+    max_sulfur_content: 1.0
+target_specs:
+  api_gravity: 37.0
+  sulfur_content: 0.6
+  total_acid_number: 0.5
+initial_inventory:
+  Light: 50000.0
+site_limits:
+  receive_min: 10000.0
+  receive_max: 100000.0
+  charge_min: 10000.0
+  charge_max: 80000.0
+  tank_cap: 500000.0
+  tank_floor: 10000.0
+lead_times:
+  foreign_m: 2
+  canada_m: 1
+  domestic_m: 1
+monthly_prices:
+  - brent: 72.0
+    wti: 68.0

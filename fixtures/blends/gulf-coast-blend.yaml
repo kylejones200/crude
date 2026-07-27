@@ -1,0 +1,26 @@
+name: gulf-coast-blend
+total_volume_bbl: 100000
+
+components:
+  - crude: wti
+    fraction: 0.7
+  - crude: maya
+    fraction: 0.3
+
+crudes:
+  wti:
+    api_gravity: 39.6
+    sulfur_wt_pct: 0.24
+  maya:
+    api_gravity: 21.3
+    sulfur_wt_pct: 3.4
+
+prices_usd_per_bbl:
+  wti: 74.50
+  maya: 66.20
+
+constraints:
+  api_gravity:
+    min: 28
+  sulfur_wt_pct:
+    max: 1.5

@@ -1,0 +1,17 @@
+[package]
+name = "crude-scenarios"
+description = "Scenario input contract parsing"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+crude-domain = { workspace = true }
+serde = { workspace = true }
+serde_yaml = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+chrono = { workspace = true }
+rand = "0.9"
+rand_distr = "0.5"

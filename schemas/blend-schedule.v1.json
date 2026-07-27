@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/kylejones200/crude/schemas/blend-schedule.v1.json",
+  "title": "BlendScheduleScenario",
+  "type": "object",
+  "required": [
+    "name",
+    "start_year",
+    "start_month",
+    "months",
+    "assays",
+    "candidates",
+    "target_specs",
+    "initial_inventory",
+    "site_limits",
+    "lead_times",
+    "monthly_prices"
+  ],
+  "properties": {
+    "name": { "type": "string" },
+    "start_year": { "type": "integer", "minimum": 2000 },
+    "start_month": { "type": "integer", "minimum": 1, "maximum": 12 },
+    "months": { "type": "integer", "minimum": 1 },
+    "assays": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "price_per_barrel": { "type": "number" },
+          "source": { "type": "string" }
+        }
+      }
+    },
+    "candidates": { "type": "array", "minItems": 1 },
+    "target_specs": {
+      "type": "object",
+      "required": ["api_gravity", "sulfur_content", "total_acid_number"]
+    },
+    "initial_inventory": { "type": "object" },
+    "site_limits": { "type": "object" },
+    "lead_times": { "type": "object" },
+    "monthly_prices": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["brent", "wti"],
+        "properties": {
+          "brent": { "type": "number" },
+          "wti": { "type": "number" }
+        }
+      }
+    }
+  }
+}

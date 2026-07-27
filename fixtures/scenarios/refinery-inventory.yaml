@@ -1,0 +1,36 @@
+name: refinery-inventory
+
+start_year: 2025
+start_month: 1
+months: 6
+
+site_limits:
+  receive_min: 50
+  receive_max: 1000
+  charge_min: 50
+  charge_max: 500
+  tank_cap: 100000
+  tank_floor: 500
+
+lead_times:
+  foreign_m: 2
+  canada_m: 1
+  domestic_m: 1
+
+initial_inventory:
+  light: 20000
+  medium: 20000
+  heavy: 20000
+
+slate:
+  light: 40
+  medium: 35
+  heavy: 25
+
+monthly_prices:
+  - { brent: 78.0, wti: 74.0 }
+  - { brent: 79.0, wti: 75.0 }
+  - { brent: 80.0, wti: 76.0 }
+  - { brent: 81.0, wti: 77.0 }
+  - { brent: 82.0, wti: 78.0 }
+  - { brent: 83.0, wti: 79.0 }
