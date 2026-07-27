@@ -1,5 +1,33 @@
 /target/
-runs/
+/runs/
+
+# Secrets and env
+.env
+.env.*
+
+# macOS
+.DS_Store
+._*
+
+# Python (legacy archive)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# JSON run outputs (fixtures and schemas are tracked)
 *.json
 !fixtures/**/*.json
 !schemas/**/*.json

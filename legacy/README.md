@@ -2,11 +2,13 @@
 
 Archived Python repos merged into `crude` in July 2026. **Do not extend these trees** — all active development is in the Rust crates (`crates/`), CLI (`apps/cli/`), and API (`apps/api/`).
 
-| Directory | Origin | Notes |
-|-----------|--------|-------|
-| [`python-assay/`](python-assay/) | `assay/` (Flask web app skeleton) | UI and routes superseded by `crude-api`; domain logic ported to Rust |
-| [`databricks-assay/`](databricks-assay/) | `assay 2/` (Databricks + regression demo) | Lakehouse, notebooks, Pyomo stubs — reference only; LP parity lives in `fixtures/parity/` |
+| Path | Origin | Notes |
+|------|--------|-------|
+| [`databricks-assay/`](databricks-assay/) | `assay 2/` (Databricks + regression demo) | Notebooks, Pyomo stubs, HTML demos — reference only |
+| [`docs/`](docs/) | `assay/` (Flask repo) | Boundary audit and handoff docs; runnable code was never present locally |
 
-Sample CSVs from the Databricks repo are in [`fixtures/legacy-sample-data/`](../fixtures/legacy-sample-data/).
+The hollow Flask skeleton (`app.py` without `routes/` / `services/` / `src/`) was removed in July 2026; see [`docs/BOUNDARY.md`](docs/BOUNDARY.md).
 
-See [`INVENTORY.md`](../INVENTORY.md) for the capability migration map and deletion gates.
+Sample CSVs live in [`fixtures/legacy-sample-data/`](../fixtures/legacy-sample-data/) (large PI/Aspen files downsampled to 100 rows). LP parity goldens are in [`fixtures/parity/`](../fixtures/parity/).
+
+See [`INVENTORY.md`](../INVENTORY.md) for the capability migration map.

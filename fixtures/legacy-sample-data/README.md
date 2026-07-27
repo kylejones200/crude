@@ -8,7 +8,7 @@ CSV and JSON fixtures from the archived Databricks crude-assay repo (`legacy/dat
 | `seasonal_prices.csv` | Monthly price series by crude |
 | `blend_supply.csv` | Blend supply constraints |
 | `market_summary.json` | Market snapshot |
-| `pi_system_data.csv` | PI historian-style telemetry (large) |
-| `aspentech_planning.csv` | AspenTech planning export (large) |
+| `pi_system_data.csv` | PI historian-style telemetry (101-row sample) |
+| `aspentech_planning.csv` | AspenTech planning export (101-row sample) |
 
 For Rust parity tests, prefer [`../parity/`](../parity/) and [`../scenarios/`](../scenarios/).
