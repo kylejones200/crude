@@ -1,69 +1,78 @@
 #!/usr/bin/env python3
-"""Generate parity golden values from crude-assay domain_pkg (canonical Python)."""
+"""Regenerate parity golden JSON from the Rust optimizer (canonical implementation).
+
+The legacy Python repos were removed in v0.1.0-migration. Use this script only
+to refresh fixtures after intentional solver or scenario changes:
+
+    cd crude
+    cargo run -- inventory optimize fixtures/scenarios/refinery-inventory.yaml --json
+    cargo run -- blend optimize fixtures/scenarios/blend-schedule-tiny.yaml --json
+"""
 
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 from pathlib import Path
 
-import pandas as pd
-
 ROOT = Path(__file__).resolve().parents[1]
-ASSAY = ROOT.parent / "crude-assay"
-sys.path.insert(0, str(ASSAY / "src"))
-
-from domain_pkg.inventory_optimization import run_inventory_optimization  # noqa: E402
-from domain_pkg.contracts import SiteLimits, LeadTimes  # noqa: E402
+FIXTURES = ROOT / "fixtures"
 
 
-def refinery_inventory_golden() -> dict:
-    limits = SiteLimits(
-        receive_min=50,
-        receive_max=1000,
-        charge_min=50,
-        charge_max=500,
-        tank_cap=100000,
-        tank_target=20000,
-        tank_risk=10000,
-        tank_floor=500,
+def run_cli(args: list[str]) -> dict:
+    cmd = ["cargo", "run", "--quiet", "--"] + args
+    proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, check=True)
+    return json.loads(proc.stdout)
+
+
+def write_inventory_golden() -> None:
+    result = run_cli(
+        ["inventory", "optimize", "fixtures/scenarios/refinery-inventory.yaml", "--json"]
     )
-    lt = LeadTimes(foreign_m=2, canada_m=1, domestic_m=1)
-    prices = pd.DataFrame([{"brent": 78 + i, "wti": 74 + i} for i in range(6)])
-    result = run_inventory_optimization(
-        2025,
-        1,
-        6,
-        limits,
-        lt,
-        {"light": 20000, "medium": 20000, "heavy": 20000},
-        prices,
-        {"light": 40, "medium": 35, "heavy": 25},
-    )
-    return {
+    purchase = result["purchase_plan"]
+    payload = {
         "scenario": "refinery-inventory",
-        "success": result.success,
-        "objective_value_usd": result.objective_value,
-        "solver_status": result.solver_status,
-        "total_purchase_bbl": sum(r["barrels"] for r in result.purchase_plan),
-        "purchase_rows": len(result.purchase_plan),
+        "tolerance_objective_pct": 0.01,
+        "objective_value_usd": result["objective_value_usd"],
+        "status": "optimal",
+        "min_purchase_rows": 1,
+        "total_purchase_bbl": sum(row["barrels"] for row in purchase),
     }
+    out = FIXTURES / "parity" / "inventory-refinery.json"
+    out.write_text(json.dumps(payload, indent=2) + "\n")
+    print(f"wrote {out}")
+
+
+def write_blend_golden(scenario_yaml: str, parity_name: str, tolerance: float) -> None:
+    result = run_cli(["blend", "optimize", f"fixtures/scenarios/{scenario_yaml}", "--json"])
+    purchase = result["purchase_plan"]
+    payload = {
+        "scenario": scenario_yaml.replace(".yaml", ""),
+        "objective_value_usd": result["objective_value_usd"],
+        "total_purchase_bbl": sum(row["barrels"] for row in purchase),
+        "tolerance_objective_pct": tolerance,
+        "status": "optimal",
+    }
+    if "tiny" in scenario_yaml:
+        end_inv = next(r for r in result["inventory_plan"] if r["month"] == 1)["inventory"]
+        payload["ending_inventory_bbl"] = end_inv
+    else:
+        payload["purchase_months"] = len({row["month"] for row in purchase})
+    out = FIXTURES / "parity" / parity_name
+    out.write_text(json.dumps(payload, indent=2) + "\n")
+    print(f"wrote {out}")
 
 
 def main() -> None:
-    golden = refinery_inventory_golden()
-    out = ROOT / "fixtures" / "parity" / "inventory-refinery.json"
-    payload = {
-        "scenario": golden["scenario"],
-        "tolerance_objective_pct": 0.001,
-        "objective_value_usd": golden["objective_value_usd"],
-        "status": "optimal",
-        "min_purchase_rows": 1,
-        "total_purchase_bbl": golden["total_purchase_bbl"],
-    }
-    out.write_text(json.dumps(payload, indent=2) + "\n")
-    print(json.dumps(golden, indent=2))
+    write_inventory_golden()
+    write_blend_golden("blend-schedule-tiny.yaml", "blend-schedule-tiny.json", 0.0)
+    write_blend_golden("blend-schedule-12month.yaml", "blend-schedule-12month.json", 0.0001)
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except subprocess.CalledProcessError as exc:
+        print(exc.stderr, file=sys.stderr)
+        sys.exit(exc.returncode)

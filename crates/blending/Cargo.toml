@@ -9,3 +9,6 @@ authors.workspace = true
 [dependencies]
 crude-domain = { workspace = true }
 serde = { workspace = true }
+
+[dev-dependencies]
+proptest = "1"

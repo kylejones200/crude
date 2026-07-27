@@ -141,4 +141,24 @@ mod tests {
         assert!((api - (0.7 * 39.6 + 0.3 * 21.3)).abs() < 1e-9);
         assert!((sulfur - (0.7 * 0.24 + 0.3 * 3.4)).abs() < 1e-9);
     }
+
+    #[test]
+    fn blend_linearity_matches_component_sum() {
+        proptest::proptest!(|(f1 in 0.1f64..0.9)| {
+            let f2 = 1.0 - f1;
+            let mut crudes = HashMap::new();
+            crudes.insert(CrudeId::new("wti"), wti());
+            crudes.insert(CrudeId::new("maya"), maya());
+            let recipe = BlendRecipe {
+                components: vec![
+                    BlendComponent { crude_id: CrudeId::new("wti"), fraction: f1 },
+                    BlendComponent { crude_id: CrudeId::new("maya"), fraction: f2 },
+                ],
+            };
+            let eval = evaluate_blend(&recipe, &crudes, None, None).unwrap();
+            let api = get_blend_property(&eval, PropertyId::ApiGravity).unwrap();
+            let expected = f1 * 39.6 + f2 * 21.3;
+            proptest::prop_assert!((api - expected).abs() < 1e-9);
+        });
+    }
 }

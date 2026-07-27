@@ -20,6 +20,7 @@ crude-economics = { workspace = true }
 crude-optimization = { workspace = true }
 crude-scenarios = { workspace = true }
 crude-storage = { workspace = true }
+crude-doctor = { workspace = true }
 axum = { version = "0.8", features = ["json"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 serde = { workspace = true }

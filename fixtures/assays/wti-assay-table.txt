@@ -1,0 +1,8 @@
+Crude Assay Report
+Name: West Texas Intermediate
+Origin: United States
+
+Property	Value	Unit
+API Gravity	39.6	deg API
+Sulfur	0.24	wt%
+TAN	0.10	mg KOH/g

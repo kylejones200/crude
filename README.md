@@ -2,42 +2,47 @@
 
 Single Rust repository for crude oil assay import, blending, constraint evaluation, and feed-cost optimization.
 
-Replacement merge — not a compatibility layer. All Python repositories in `cude/` are slated for deletion once parity is proven.
+## Install
+
+**Prebuilt binary** (see [GitHub Releases](https://github.com/kylejones200/crude/releases)):
+
+```bash
+gh release download v0.1.0 --repo kylejones200/crude --pattern 'crude-macos-arm64' -O crude
+chmod +x crude
+./crude doctor
+```
+
+**From source:**
+
+```bash
+cargo install --git https://github.com/kylejones200/crude --tag v0.1.0 crude-cli
+# or
+git clone https://github.com/kylejones200/crude.git && cd crude
+cargo build --release
+```
 
 ## Structure
 
 ```text
 crude/
-├── crates/
-│   ├── domain/           # Canonical Crude, Assay, BlendRecipe types
-│   ├── assay/            # JSON/YAML/Excel/PDF import + normalization
-│   ├── blending/         # Volume-weighted blend properties
-│   ├── constraints/      # Product specs + SBN/IN compatibility
-│   ├── economics/        # Feed cost, value heuristics, live prices
-│   ├── optimization/     # Static blend LP, blend schedule LP, inventory LP
-│   ├── scenarios/        # YAML scenario contract
-│   └── storage/          # JSON run persistence
-├── apps/
-│   ├── cli/
-│   └── api/              # axum HTTP API on :8080
-├── fixtures/
-├── tests/
-├── INVENTORY.md          # Phase 1 capability inventory + deletion gates
-└── ROADMAP.md            # Forward plan (phases, milestones, backlog)
+├── crates/          # domain, assay, blending, optimization, scenarios, storage, doctor
+├── apps/cli/        # `crude` binary
+├── apps/api/        # axum HTTP API on :8080
+├── fixtures/        # scenarios, parity goldens, assay samples
+├── schemas/         # JSON Schema for scenario YAML contracts
+├── docs/units.md    # units, tolerances, validation bounds
+└── tests/           # parity, vertical path, benchmarks
 ```
 
 ## CLI
 
 ```bash
-cargo build --release
-
-# Assay import
+# Assay import (returns warnings on stderr; full report with --json)
 cargo run -- assay import fixtures/assays/wti.json
+cargo run -- assay import fixtures/assays/wti-assay-table.txt --json
 
-# Blend evaluation
+# Blend evaluation and multi-month schedule LP
 cargo run -- blend evaluate fixtures/blends/gulf-coast-blend.yaml
-
-# Multi-month blend schedule LP
 cargo run -- blend optimize fixtures/scenarios/blend-schedule-tiny.yaml
 
 # Static single-period optimization
@@ -46,42 +51,38 @@ cargo run -- optimize fixtures/scenarios/gulf-coast-slate.yaml
 # Inventory procurement (multi-month LP)
 cargo run -- inventory optimize fixtures/scenarios/refinery-inventory.yaml
 
-# SBN/IN compatibility
+# SBN/IN compatibility, prices, Monte Carlo
 cargo run -- compatibility fixtures/compatibility/sample.json
+cargo run -- prices fetch --history 2y
+cargo run -- simulate fixtures/prices/wti-sample.json
 
-# Live WTI/Brent spot (cached 24h in ~/.cache/crude/)
-cargo run -- prices fetch
-cargo run -- prices fetch --history 2y -o fixtures/prices/wti-brent-2y.json
-
-# List saved runs
+# Runs, health, benchmarks
 cargo run -- runs list
-cargo run -- runs show run-1234567890
-
-# Health check (solver + fixtures)
-cargo run -- doctor
-cargo run -- doctor --online   # also hits Yahoo Finance
-
-# Compare runs
 cargo run -- compare runs/*.json
+cargo run -- doctor
+cargo run -- doctor --online
+cargo run -- benchmark
 ```
 
-## Scenario contract
+## API
 
-See `fixtures/scenarios/gulf-coast-slate.yaml` for the canonical input format.
+```bash
+cargo run -p crude-api
+# GET  /health  /doctor  /benchmark/lp  /prices/fetch  /runs
+# POST /assay/import  /blend/evaluate  /optimize  /inventory/optimize
+#      /blend/schedule/optimize  /compatibility/evaluate  /compare  /simulate
+```
 
 ## Tests
 
 ```bash
 cargo test --workspace
+cargo test --test benchmarks -- --ignored   # LP timing report
+python3 scripts/generate_parity.py         # refresh parity goldens from Rust
 ```
 
-## Migration status
+## Documentation
 
-See [`ROADMAP.md`](ROADMAP.md) for the full forward plan. Consolidation summary:
-
-- Phase 1 (inventory): `INVENTORY.md`
-- Phase 2 (spine): complete
-- Phase 3 (vertical path): complete — assay → blend → constraints → optimize
-- Phase 4 (inventory + Monte Carlo + blend schedule): complete
-- Phase 5 (parity): inventory LP + blend schedule tiny match Python golden
-- Phase 6: duplicate `* 2` folders deleted; primary repos remain until deletion gate
+- [`ROADMAP.md`](ROADMAP.md) — phases and milestones
+- [`docs/units.md`](docs/units.md) — units and solver tolerances
+- [`INVENTORY.md`](INVENTORY.md) — capability inventory from legacy repos

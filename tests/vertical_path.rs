@@ -1,6 +1,6 @@
 //! End-to-end vertical path: assay → blend → constraints → optimize
 
-use crude_assay::import_assay;
+use crude_assay::{import_assay, import_assay_report};
 use crude_blending::{evaluate_blend, get_blend_property};
 use crude_constraints::{evaluate_product_constraints, ProductConstraints, PropertyBound};
 use crude_domain::PropertyId;
@@ -18,6 +18,14 @@ fn assay_import_normalizes_wti() {
     let crude = import_assay(&path).unwrap();
     assert_eq!(crude.assay.api_gravity(), Some(39.6));
     assert_eq!(crude.assay.sulfur_wt_pct(), Some(0.24));
+}
+
+#[test]
+fn assay_table_import_returns_warnings() {
+    let path = fixture_root().join("assays/wti-assay-table.txt");
+    let report = import_assay_report(&path).unwrap();
+    assert_eq!(report.crude.assay.api_gravity(), Some(39.6));
+    assert!(report.warnings.iter().any(|w| w.code == "missing_sbn"));
 }
 
 #[test]

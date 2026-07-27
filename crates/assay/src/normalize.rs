@@ -1,14 +1,9 @@
 use crate::error::{AssayError, AssayResult};
 use crate::import::RawAssay;
+use crate::validation::{API_MAX, API_MIN, SULFUR_MAX, SULFUR_MIN};
 use crude_domain::{Crude, CrudeId, PropertyId, PropertyMeasurement};
 
-/// Validation bounds ported from crude-assay `assay_parser._validate_assay_data`.
-const API_MIN: f64 = 10.0;
-const API_MAX: f64 = 50.0;
-const SULFUR_MIN: f64 = 0.0;
-const SULFUR_MAX: f64 = 10.0;
-
-pub fn normalize_raw_assay(raw: RawAssay) -> AssayResult<Crude> {
+pub fn build_crude_from_raw(raw: RawAssay) -> AssayResult<Crude> {
     let name = raw
         .name
         .clone()
@@ -69,6 +64,11 @@ pub fn normalize_raw_assay(raw: RawAssay) -> AssayResult<Crude> {
     })
 }
 
+/// Legacy entry point — prefer [`crate::report::import_assay_report`].
+pub fn normalize_raw_assay(raw: RawAssay) -> AssayResult<Crude> {
+    build_crude_from_raw(raw)
+}
+
 fn validate_api(api: f64) -> AssayResult<()> {
     if !(API_MIN..=API_MAX).contains(&api) {
         return Err(AssayError::Validation(format!(
@@ -101,6 +101,7 @@ fn slugify(name: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::import::RawAssay;
 
     #[test]
     fn normalizes_legacy_aliases() {
@@ -111,7 +112,7 @@ mod tests {
             acidity: Some(0.1),
             ..Default::default()
         };
-        let crude = normalize_raw_assay(raw).unwrap();
+        let crude = build_crude_from_raw(raw).unwrap();
         assert_eq!(crude.assay.api_gravity(), Some(39.6));
         assert_eq!(crude.assay.sulfur_wt_pct(), Some(0.24));
     }

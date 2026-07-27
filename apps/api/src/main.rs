@@ -6,12 +6,13 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
-use crude_assay::{import_assay, import_assay_bytes};
+use crude_assay::{import_assay_report, import_assay_report_bytes};
 use crude_blending::{evaluate_blend, get_blend_property};
 use crude_constraints::{
     evaluate_compatibility, evaluate_product_constraints, ProductConstraints, PropertyBound,
     DEFAULT_COMPATIBILITY_K,
 };
+use crude_doctor::{run_doctor, run_lp_benchmarks};
 use crude_domain::PropertyId;
 use crude_economics::{fetch_history_cached, fetch_live_cached, PriceCacheConfig};
 use crude_optimization::{optimize_blend_schedule, optimize_inventory, optimize_scenario};
@@ -19,7 +20,9 @@ use crude_scenarios::{
     simulate_gbm, BlendScenarioFile, BlendScheduleScenario, InventoryScenario, MonteCarloConfig,
     PriceSeries, Scenario,
 };
-use crude_storage::{get_run, list_runs, save_blend_schedule_run, save_inventory_run, save_run};
+use crude_storage::{
+    compare_runs, get_run, list_runs, save_blend_schedule_run, save_inventory_run, save_run,
+};
 use request::{path_buf, require_path_or_yaml};
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
@@ -94,9 +97,15 @@ struct PricesQuery {
     no_cache: bool,
 }
 
-#[derive(Serialize)]
-struct ErrorBody {
-    error: String,
+#[derive(Deserialize)]
+struct DoctorQuery {
+    #[serde(default)]
+    online: bool,
+}
+
+#[derive(Deserialize)]
+struct CompareRequest {
+    paths: Vec<String>,
 }
 
 #[tokio::main]
@@ -115,6 +124,9 @@ async fn main() {
         .route("/prices/fetch", get(prices_fetch))
         .route("/runs", get(list_runs_route))
         .route("/runs/{run_id}", get(get_run_route))
+        .route("/doctor", get(doctor_route))
+        .route("/benchmark/lp", get(benchmark_lp_route))
+        .route("/compare", post(compare_runs_route))
         .route("/simulate", post(simulate_prices))
         .layer(CorsLayer::permissive())
         .with_state(state);
@@ -132,8 +144,8 @@ async fn health() -> &'static str {
 async fn assay_import(
     Json(req): Json<AssayImportRequest>,
 ) -> Result<Json<serde_json::Value>, (StatusCode, Json<ErrorBody>)> {
-    let crude = if let Some(path) = req.path {
-        import_assay(path_buf(&path).as_path()).map_err(err)?
+    let report = if let Some(path) = req.path {
+        import_assay_report(path_buf(&path).as_path()).map_err(err)?
     } else {
         let format = req
             .format
@@ -142,9 +154,9 @@ async fn assay_import(
             .content_base64
             .ok_or_else(|| err("content_base64 required when path is omitted"))?;
         let bytes = base64_decode(&b64).map_err(err)?;
-        import_assay_bytes(&bytes, &format).map_err(err)?
+        import_assay_report_bytes(&bytes, &format).map_err(err)?
     };
-    Ok(Json(serde_json::to_value(crude).unwrap()))
+    Ok(Json(serde_json::to_value(report).unwrap()))
 }
 
 async fn blend_evaluate(
@@ -295,6 +307,31 @@ async fn simulate_prices(
     };
     let result = simulate_gbm(&PriceSeries { closes: req.closes }, &config).map_err(err)?;
     Ok(Json(serde_json::to_value(result).unwrap()))
+}
+
+async fn doctor_route(
+    Query(query): Query<DoctorQuery>,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<ErrorBody>)> {
+    let report = run_doctor(None, query.online);
+    Ok(Json(serde_json::to_value(report).unwrap()))
+}
+
+async fn benchmark_lp_route() -> Result<Json<serde_json::Value>, (StatusCode, Json<ErrorBody>)> {
+    let results = run_lp_benchmarks(None);
+    Ok(Json(serde_json::to_value(results).unwrap()))
+}
+
+async fn compare_runs_route(
+    Json(req): Json<CompareRequest>,
+) -> Result<Json<serde_json::Value>, (StatusCode, Json<ErrorBody>)> {
+    let paths: Vec<PathBuf> = req.paths.into_iter().map(|p| path_buf(&p)).collect();
+    let comparison = compare_runs(&paths).map_err(storage_err)?;
+    Ok(Json(serde_json::to_value(comparison).unwrap()))
+}
+
+#[derive(Serialize)]
+struct ErrorBody {
+    error: String,
 }
 
 fn load_blend_scenario(

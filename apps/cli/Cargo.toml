@@ -19,6 +19,7 @@ crude-economics = { workspace = true }
 crude-optimization = { workspace = true }
 crude-scenarios = { workspace = true }
 crude-storage = { workspace = true }
+crude-doctor = { workspace = true }
 clap = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }

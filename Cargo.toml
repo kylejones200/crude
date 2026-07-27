@@ -9,6 +9,7 @@ members = [
     "crates/optimization",
     "crates/scenarios",
     "crates/storage",
+    "crates/doctor",
     "apps/cli",
     "apps/api",
     "crates/integration-tests",
@@ -42,3 +43,4 @@ crude-economics = { path = "crates/economics" }
 crude-optimization = { path = "crates/optimization" }
 crude-scenarios = { path = "crates/scenarios" }
 crude-storage = { path = "crates/storage" }
+crude-doctor = { path = "crates/doctor" }

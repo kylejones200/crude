@@ -11,8 +11,13 @@ crude-blending = { workspace = true }
 crude-constraints = { workspace = true }
 crude-optimization = { workspace = true }
 crude-scenarios = { workspace = true }
+crude-doctor = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+
+[[test]]
+name = "benchmarks"
+path = "../../tests/benchmarks.rs"
 
 [[test]]
 name = "vertical_path"

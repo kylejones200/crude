@@ -173,6 +173,22 @@ fn legacy_streamlit_purchase_plan_totals_parse() {
 }
 
 #[test]
+fn parity_json_fixtures_match_scenarios() {
+    let root = fixture_root();
+    let inventory = std::fs::read_to_string(root.join("parity/inventory-refinery.json")).unwrap();
+    let inv: serde_json::Value = serde_json::from_str(&inventory).unwrap();
+    assert_eq!(inv["scenario"], "refinery-inventory");
+    assert!(inv["objective_value_usd"].as_f64().unwrap() > 0.0);
+
+    for name in ["blend-schedule-tiny.json", "blend-schedule-12month.json"] {
+        let text = std::fs::read_to_string(root.join("parity").join(name)).unwrap();
+        let golden: serde_json::Value = serde_json::from_str(&text).unwrap();
+        assert!(golden["objective_value_usd"].as_f64().unwrap() > 0.0);
+        assert_eq!(golden["status"].as_str().unwrap().to_lowercase(), "optimal");
+    }
+}
+
+#[test]
 fn monte_carlo_fixture_statistics_stable() {
     use crude_scenarios::{simulate_gbm, MonteCarloConfig, PriceSeries};
 

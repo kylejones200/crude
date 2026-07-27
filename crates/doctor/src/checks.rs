@@ -1,6 +1,6 @@
 //! Environment and dependency checks for the crude toolchain.
 
-use crude_assay::import_assay;
+use crude_assay::import_assay_report;
 use crude_optimization::{optimize_blend_schedule, optimize_inventory, SolverStatus};
 use crude_scenarios::{BlendScheduleScenario, InventoryScenario};
 use serde::Serialize;
@@ -8,6 +8,7 @@ use std::path::{Path, PathBuf};
 
 const REQUIRED_FIXTURES: &[&str] = &[
     "assays/wti.json",
+    "assays/wti-assay-table.txt",
     "blends/gulf-coast-blend.yaml",
     "scenarios/gulf-coast-slate.yaml",
     "scenarios/refinery-inventory.yaml",
@@ -79,11 +80,15 @@ fn resolve_fixtures_root(explicit: Option<PathBuf>) -> PathBuf {
 
 fn check_assay_import(root: &Path) -> DoctorCheck {
     let path = root.join("assays/wti.json");
-    match import_assay(&path) {
-        Ok(crude) => DoctorCheck {
+    match import_assay_report(&path) {
+        Ok(report) => DoctorCheck {
             name: "assay:import".into(),
-            ok: !crude.id.as_str().is_empty(),
-            detail: format!("imported {}", crude.id),
+            ok: !report.crude.id.as_str().is_empty(),
+            detail: format!(
+                "imported {} ({} warnings)",
+                report.crude.id,
+                report.warnings.len()
+            ),
         },
         Err(e) => DoctorCheck {
             name: "assay:import".into(),

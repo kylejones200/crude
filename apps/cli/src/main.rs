@@ -1,12 +1,11 @@
-mod doctor;
-
 use clap::{Parser, Subcommand};
-use crude_assay::import_assay;
+use crude_assay::import_assay_report;
 use crude_blending::{evaluate_blend, get_blend_property};
 use crude_constraints::{
     evaluate_compatibility, evaluate_product_constraints, ProductConstraints, PropertyBound,
     DEFAULT_COMPATIBILITY_K,
 };
+use crude_doctor::{run_doctor, run_lp_benchmarks};
 use crude_domain::PropertyId;
 use crude_economics::{fetch_history_cached, fetch_live_cached, PriceCacheConfig};
 use crude_optimization::{
@@ -20,7 +19,6 @@ use crude_scenarios::{
 use crude_storage::{
     compare_runs, get_run, list_runs, save_blend_schedule_run, save_inventory_run, save_run,
 };
-use doctor::run_doctor;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fs;
@@ -96,6 +94,12 @@ enum Commands {
         /// Also fetch live WTI/Brent from Yahoo Finance
         #[arg(long)]
         online: bool,
+    },
+    /// Time standard LP fixtures (microlp)
+    Benchmark {
+        /// Fixtures directory (default: auto-detect)
+        #[arg(long)]
+        fixtures: Option<PathBuf>,
     },
 }
 
@@ -195,8 +199,17 @@ fn run(cli: Cli) -> Result<i32, Box<dyn std::error::Error>> {
     let code = match cli.command {
         Commands::Assay { action } => match action {
             AssayCommands::Import { path } => {
-                let crude = import_assay(&path)?;
-                emit(&opts, &crude)?;
+                let report = import_assay_report(&path)?;
+                if !opts.quiet {
+                    for warning in &report.warnings {
+                        eprintln!("warning [{}]: {}", warning.code, warning.message);
+                    }
+                }
+                if opts.json {
+                    emit(&opts, &report)?;
+                } else {
+                    emit(&opts, &report.crude)?;
+                }
                 0
             }
         },
@@ -320,6 +333,11 @@ fn run(cli: Cli) -> Result<i32, Box<dyn std::error::Error>> {
             } else {
                 1
             }
+        }
+        Commands::Benchmark { fixtures } => {
+            let results = run_lp_benchmarks(fixtures);
+            emit(&opts, &results)?;
+            0
         }
     };
     Ok(code)
