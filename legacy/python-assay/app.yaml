@@ -1,0 +1,10 @@
+command:
+  - python
+  - app.py
+env:
+  - name: FLASK_PORT
+    value: "8000"
+  - name: FLASK_HOST
+    value: "0.0.0.0"
+  - name: GENIE_SPACE_ID
+    value: 01f12d3b7a82174e938896afa88e1244

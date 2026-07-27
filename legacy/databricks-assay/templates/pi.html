@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="mb-3">PI System Data</h1>
+<p class="text-muted">Real-time tank levels, temperatures, volumes, and unit feeds from PI sample data.</p>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-5">
+    <div class="input-group">
+      <span class="input-group-text">Tags</span>
+      <input id="inp-tags" type="text" class="form-control" placeholder="TK101_LEVEL,TK101_TEMP,CDU_FEED_RATE">
+    </div>
+  </div>
+  <div class="col-md-5">
+    <div class="input-group">
+      <span class="input-group-text">Tanks</span>
+      <input id="inp-tanks" type="text" class="form-control" placeholder="TK101,TK102">
+    </div>
+  </div>
+  <div class="col-md-2 d-grid">
+    <div class="btn-group">
+      <button id="btn-load" class="btn btn-primary">Load</button>
+      <button id="btn-sim" class="btn btn-outline-secondary" title="Generate 90 days of simulated data">Simulate</button>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <h5 class="card-title">Time Series</h5>
+        <canvas id="piChart" height="140"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Latest Snapshot</h5>
+        <div id="snapshot" class="small"></div>
+      </div>
+    </div>
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Legend</h5>
+        <div id="legend" class="small text-muted"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+let piChart;
+let lastPayload = null;
+
+function makeColors(n){
+  const palette=['#4e79a7','#f28e2b','#e15759','#76b7b2','#59a14f','#edc948','#b07aa1','#ff9da7','#9c755f','#bab0ab'];
+  return Array.from({length:n},(_,i)=>palette[i%palette.length]);
+}
+
+async function jsonGet(url){
+  const r=await fetch(url);
+  if(!r.ok) throw new Error(await r.text());
+  return await r.json();
+}
+async function jsonPost(url, body){
+  const r=await fetch(url,{method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body||{})});
+  if(!r.ok) throw new Error(await r.text());
+  return await r.json();
+}
+
+function groupByTag(records){
+  const m={};
+  for(const r of records){
+    (m[r.tag_name] ||= []).push(r);
+  }
+  return m;
+}
+
+function renderSnapshot(records){
+  const latest = {};
+  for(const r of records){
+    const key = r.tag_name;
+    if(!latest[key] || new Date(r.timestamp) > new Date(latest[key].timestamp)) latest[key] = r;
+  }
+  const container = document.getElementById('snapshot');
+  container.innerHTML='';
+  Object.values(latest).sort((a,b)=>a.tag_name.localeCompare(b.tag_name)).forEach(r=>{
+    container.insertAdjacentHTML('beforeend', `
+      <div class="d-flex justify-content-between border-bottom py-1">
+        <div><code>${r.tag_name}</code> <span class="text-muted">(${r.unit})</span></div>
+        <div><strong>${r.value}</strong> <span class="text-muted small">@ ${new Date(r.timestamp).toLocaleString()}</span></div>
+      </div>`);
+  });
+}
+
+function renderLegend(tags){
+  const container = document.getElementById('legend');
+  container.textContent = tags.join(', ');
+}
+
+function renderPiChart(payload){
+  const records = payload.records || [];
+  lastPayload = payload;
+  const grouped = groupByTag(records);
+  const allTs = Array.from(new Set(records.map(r=>r.timestamp))).sort();
+  const colors = makeColors(Object.keys(grouped).length);
+  const datasets = Object.entries(grouped).map(([tag,rows],i)=>{
+    const idx = new Map(rows.map(r=>[r.timestamp, r.value]));
+    return {
+      label: tag,
+      data: allTs.map(t=> idx.has(t)? idx.get(t): null),
+      borderColor: colors[i],
+      backgroundColor: colors[i],
+      spanGaps: true,
+      tension: 0.2
+    };
+  });
+  const ctx = document.getElementById('piChart');
+  if (piChart) piChart.destroy();
+  piChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels: allTs, datasets },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { position: 'bottom' } },
+      scales: { x: { title: { display:true, text:'Timestamp' } }, y: { title: { display:true, text:'Value' } } }
+    }
+  });
+}
+
+async function load(){
+  const tags = document.getElementById('inp-tags').value;
+  const tanks = document.getElementById('inp-tanks').value;
+  const params = new URLSearchParams();
+  if (tags) params.set('tags', tags);
+  if (tanks) params.set('tanks', tanks);
+  params.set('limit','5000');
+  const data = await jsonGet('/api/pi/data?' + params.toString());
+  renderPiChart(data);
+  renderSnapshot(data.records);
+  renderLegend(data.tags || []);
+}
+
+document.getElementById('btn-load').addEventListener('click', load);
+document.getElementById('btn-sim').addEventListener('click', async ()=>{
+  try {
+    const res = await jsonPost('/api/pi/simulate', { days: 90, freq: '15min' });
+    await load();
+    alert(`Simulated ${res.rows} rows for trailing 90 days`);
+  } catch(e) { alert('Simulation error: ' + e); }
+});
+
+// Forecast overlay
+async function forecast(){
+  const tags = document.getElementById('inp-tags').value;
+  const tanks = document.getElementById('inp-tanks').value;
+  const params = new URLSearchParams();
+  if (tags) params.set('tags', tags);
+  if (tanks) params.set('tanks', tanks);
+  params.set('horizon_hours','24');
+  params.set('freq','15min');
+  const data = await jsonGet('/api/pi/forecast?' + params.toString());
+  if (!piChart || !lastPayload) return;
+  const colors = makeColors(Object.keys(data.forecast||{}).length);
+  const startLen = piChart.data.labels.length;
+  // Append forecast labels if not present
+  let extraLabels = [];
+  const anyTag = Object.values(data.forecast||{})[0];
+  if (anyTag && anyTag.timestamps){
+    extraLabels = anyTag.timestamps;
+  }
+  piChart.data.labels = [...piChart.data.labels, ...extraLabels];
+  let i = 0;
+  for (const [tag, series] of Object.entries(data.forecast||{})){
+    if (!series.values) continue;
+    const fcDataset = {
+      label: tag + ' (forecast)',
+      data: Array(startLen).fill(null).concat(series.values),
+      borderColor: colors[i],
+      backgroundColor: colors[i],
+      borderDash: [6,4],
+      tension: 0.2,
+      spanGaps: true
+    };
+    piChart.data.datasets.push(fcDataset);
+    i++;
+  }
+  piChart.update();
+}
+
+// Add a small floating button for forecast
+const btn = document.createElement('button');
+btn.textContent = 'Forecast 24h';
+btn.className = 'btn btn-outline-primary btn-sm mt-2';
+btn.addEventListener('click', ()=>forecast().catch(e=>alert('Forecast error: '+e)));
+document.querySelector('#piChart').parentElement.appendChild(btn);
+
+// Initial load with common tags
+(async ()=>{
+  document.getElementById('inp-tags').value = 'TK101_LEVEL,TK101_TEMP,TK101_VOLUME';
+  document.getElementById('inp-tanks').value = 'TK101';
+  await load();
+})();
+</script>
+{% endblock %}

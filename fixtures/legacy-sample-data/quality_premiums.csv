@@ -1,0 +1,9 @@
+crude_category,api_range_low,api_range_high,sulfur_range_low,sulfur_range_high,premium_discount_usd_bbl,quality_tier
+Extra Light Sweet,45.0,60.0,0.00,0.30,4.50,Premium
+Light Sweet,35.0,45.0,0.00,0.50,2.25,Premium  
+Light Sweet High Sulfur,35.0,45.0,0.50,1.50,0.75,Standard
+Medium Sweet,25.0,35.0,0.00,0.50,1.50,Standard
+Medium Sour,25.0,35.0,0.50,2.50,-0.25,Standard
+Heavy Sweet,15.0,25.0,0.00,0.50,0.50,Discount
+Heavy Sour,15.0,25.0,0.50,4.00,-2.50,Discount
+Extra Heavy,10.0,15.0,2.00,6.00,-8.25,Discount

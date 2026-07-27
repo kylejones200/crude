@@ -90,3 +90,15 @@ Nearly identical to crude-assay. Same winners. Additionally delete:
 - `crude_optimizer/` — empty stub removed
 
 Primary repos were deleted July 2026 after the Rust port passed parity gates. Legacy Streamlit goldens live in `crude/fixtures/parity/legacy-streamlit/`.
+
+## Merged into `crude/` (July 2026 workspace cleanup)
+
+Local `assay/` and `assay 2/` folders were consolidated into this repo:
+
+| Source | Destination | Notes |
+|--------|-------------|-------|
+| `assay/` (Flask skeleton + docs) | `legacy/python-assay/` | Reference only; not maintained |
+| `assay 2/` (Databricks + regression) | `legacy/databricks-assay/` | Notebooks, Pyomo stubs, demos |
+| `assay 2/resources/sample_data/` | `fixtures/legacy-sample-data/` | 49-crude CSV corpus + PI/Aspen samples |
+
+See [`legacy/README.md`](legacy/README.md).

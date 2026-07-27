@@ -1,0 +1,11 @@
+recipe_id,recipe_name,created_date,status,target_volume_bbl,target_api,target_sulfur_max,target_pour_point_max,optimization_objective,crude_1_id,crude_1_fraction,crude_2_id,crude_2_fraction,crude_3_id,crude_3_fraction,crude_4_id,crude_4_fraction,predicted_api,predicted_sulfur,predicted_cost_per_bbl,predicted_margin
+BLISS_001,Premium_Light_Blend,2025-08-25T19:13:49Z,Active,50000,38.5,0.5,-25,minimize_cost,WTI,0.45,BRENT,0.35,AZERI_LIGHT,0.2,,0.0,38.7,0.48,87.25,12.5
+BLISS_002,Medium_Sweet_Blend,2025-08-26T06:43:54Z,Active,75000,32.0,1.5,-15,maximize_margin,ARB,0.4,URALS,0.35,EGYPTIAN_BLEND,0.25,,0.0,32.2,1.38,84.15,15.75
+BLISS_003,Heavy_Sour_Blend,2025-08-26T18:14:00Z,Active,100000,24.0,3.0,15,minimize_cost,MAYA,0.5,CANADIAN_HEAVY,0.3,BASRA_HEAVY,0.2,,0.0,23.8,3.15,72.85,8.25
+BLISS_004,Refinery_Feed_A,2025-09-03T12:33:33Z,Active,80000,35.0,1.0,-20,balance_quality,WTI,0.3,BRENT,0.25,SAHARA,0.25,NIGERIAN_LIGHT,0.2,35.2,0.95,88.5,14.2
+BLISS_005,Coker_Feed_Heavy,2025-09-04T02:21:40Z,Active,120000,22.0,3.5,20,minimize_cost,MAYA,0.45,VENEZUELAN_HEAVY,0.35,CANADIAN_HEAVY,0.2,,0.0,21.8,3.65,68.4,6.8
+BLISS_006,CDU_Optimization,2025-09-05T22:04:02Z,Active,65000,33.5,2.0,-10,maximize_yield,ARB,0.35,KUWAIT,0.3,OMAN,0.25,DUBAI,0.1,33.8,1.85,83.75,11.9
+BLISS_007,Export_Grade_Light,2025-09-12T15:05:23Z,Active,45000,40.0,0.4,-30,meet_specification,KAZAKHSTAN_CPC,0.4,MALAYSIA_TAPIS,0.35,AUSTRALIA_GIPPSLAND,0.25,,0.0,40.1,0.38,92.8,18.6
+BLISS_008,Diesel_Maximization,2025-09-14T18:27:48Z,Active,55000,34.0,1.2,-18,maximize_middle_cuts,BRENT,0.4,NORTH_SEA_EKOFISK,0.3,AZERI_LIGHT,0.3,,0.0,34.3,1.15,89.25,16.45
+BLISS_009,Gasoline_Optimization,2025-09-22T16:37:23Z,Active,70000,36.0,0.8,-25,maximize_light_cuts,WTI,0.35,SAHARA,0.3,LIBYAN_SWEET,0.35,,0.0,36.2,0.75,90.5,17.8
+BLISS_010,Economic_Blend_1,2025-09-24T19:13:49Z,Active,90000,30.0,2.5,10,minimize_cost,MARS,0.4,URALS,0.35,RUSSIAN_EXPORT,0.25,,0.0,30.1,2.45,81.6,10.35

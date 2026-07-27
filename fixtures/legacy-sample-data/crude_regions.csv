@@ -1,0 +1,53 @@
+crude_id,region,country,basin,production_type
+ARB,ME,Saudi Arabia,Arabian,Conventional
+WAF,WAF,Nigeria,Niger Delta,Conventional
+MARS,USG,USA,Gulf of Mexico,Deepwater
+WTI,USG,USA,Permian Basin,Tight Oil
+BRENT,NSea,UK,North Sea,Conventional
+DUBAI,ME,UAE,Arabian,Conventional
+MAYA,LatAm,Mexico,Gulf of Mexico,Heavy Oil
+URALS,Russia,Russia,West Siberian,Conventional
+SAHARA,WAF,Algeria,Sahara,Conventional
+KIRKUK,ME,Iraq,Kirkuk,Conventional
+IRANIAN_LIGHT,ME,Iran,Zagros,Conventional
+IRANIAN_HEAVY,ME,Iran,Khuzestan,Conventional
+KUWAIT,ME,Kuwait,Burgan,Conventional
+ALASKA_NS,USG,USA,North Slope,Conventional
+CANADIAN_HEAVY,Canada,Canada,Oil Sands,Oil Sands
+VENEZUELAN_HEAVY,LatAm,Venezuela,Orinoco Belt,Extra Heavy
+NIGERIAN_LIGHT,WAF,Nigeria,Niger Delta,Conventional
+ANGOLAN_CABINDA,WAF,Angola,Cabinda,Deepwater
+LIBYAN_SWEET,WAF,Libya,Sirte Basin,Conventional
+EGYPTIAN_BLEND,ME,Egypt,Western Desert,Conventional
+NORTH_SEA_EKOFISK,NSea,Norway,North Sea,Conventional
+AZERI_LIGHT,Russia,Azerbaijan,Caspian,Deepwater
+KAZAKHSTAN_CPC,Russia,Kazakhstan,Tengiz,Conventional
+RUSSIAN_EXPORT,Russia,Russia,Volga-Urals,Conventional
+BASRA_LIGHT,ME,Iraq,Basra,Conventional
+BASRA_HEAVY,ME,Iraq,Basra,Conventional
+OMAN,ME,Oman,Central Oman,Conventional
+QATAR_MARINE,ME,Qatar,North Field,Condensate
+ABU_DHABI,ME,UAE,Zakum,Conventional
+BRAZILIAN_MARLIM,LatAm,Brazil,Santos Basin,Ultra-deepwater
+BRAZILIAN_LULA,LatAm,Brazil,Santos Basin,Pre-salt
+COLOMBIA_CANO_LIMON,LatAm,Colombia,Llanos Basin,Conventional
+ECUADOR_ORIENTE,LatAm,Ecuador,Oriente Basin,Conventional
+MEXICO_ISTHMUS,LatAm,Mexico,Isthmus,Conventional
+MEXICO_MAYA,LatAm,Mexico,Marine,Heavy Oil
+INDONESIA_MINAS,SEAsia,Indonesia,Central Sumatra,Conventional
+MALAYSIA_TAPIS,SEAsia,Malaysia,Malay Basin,Conventional
+THAILAND_PLATONG,SEAsia,Thailand,Pattani Basin,Conventional
+VIETNAM_BACH_HO,SEAsia,Vietnam,Cuu Long Basin,Conventional
+AUSTRALIA_GIPPSLAND,SEAsia,Australia,Gippsland Basin,Conventional
+BRUNEI_CHAMPION,SEAsia,Brunei,Baram Delta,Conventional
+INDIAN_MUMBAI,SEAsia,India,Mumbai High,Offshore
+CHINESE_DAQING,SEAsia,China,Songliao Basin,Conventional
+TURKISH_BATMAN,ME,Turkey,Southeast Anatolia,Conventional
+ALGERIAN_SAHARAN,WAF,Algeria,Illizi Basin,Conventional
+GABONESE_RABI,WAF,Gabon,Coastal Basin,Conventional
+CONGOLESE_DJENO,WAF,Congo,Coastal Basin,Deepwater
+CAMEROON_KOLE,WAF,Cameroon,Rio del Rey Basin,Deepwater
+EQUATORIAL_GUINEA_ZAFIRO,WAF,Equatorial Guinea,Rio Muni Basin,Deepwater
+CHAD_DOBA,WAF,Chad,Doba Basin,Conventional
+SUDAN_NILE,WAF,Sudan,Muglad Basin,Conventional
+YEMEN_MASILA,ME,Yemen,Masila Basin,Conventional

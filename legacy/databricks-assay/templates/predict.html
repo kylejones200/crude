@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="mb-3">Prediction Demo</h1>
+<p class="text-muted">Interactive regression demo embedded below. Use the navbar to navigate to Market, PI Data, Bliss, Haverly, Intertek, etc.</p>
+
+<div class="ratio ratio-16x9 border rounded shadow-sm">
+  <iframe src="/predict/raw" title="Prediction Demo" style="border:0; width:100%; height:100%"></iframe>
+</div>
+{% endblock %}

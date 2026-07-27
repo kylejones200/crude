@@ -1,0 +1,20 @@
+test_id,sample_id,crude_id,test_date,test_type,method,result_value,result_unit,specification_min,specification_max,pass_fail,analyst,equipment_id,retest_required,comments
+LIMS_001,S2024_001,WTI,2025-08-25T19:13:49Z,API_Gravity,ASTM_D287,39.8,deg_API,38.0,42.0,Pass,J.Smith,DEN_001,No,Within specification
+LIMS_002,S2024_001,WTI,2025-08-25T21:41:45Z,Sulfur_Content,ASTM_D4294,0.23,wt_pct,0.0,0.5,Pass,J.Smith,XRF_001,No,Sweet crude confirmed
+LIMS_003,S2024_001,WTI,2025-08-26T00:09:42Z,Pour_Point,ASTM_D97,-39.0,deg_C,-45.0,-30.0,Pass,M.Johnson,PP_001,No,Good flow properties
+LIMS_004,S2024_002,BRENT,2025-08-26T10:01:29Z,API_Gravity,ASTM_D287,38.4,deg_API,37.0,40.0,Pass,K.Wilson,DEN_001,No,Typical for Brent
+LIMS_005,S2024_002,BRENT,2025-08-26T12:29:26Z,Sulfur_Content,ASTM_D4294,0.36,wt_pct,0.0,0.5,Pass,K.Wilson,XRF_001,No,Low sulfur content
+LIMS_006,S2024_003,MAYA,2025-09-02T09:41:45Z,API_Gravity,ASTM_D287,21.9,deg_API,20.0,24.0,Pass,R.Davis,DEN_001,No,Heavy crude range
+LIMS_007,S2024_003,MAYA,2025-09-02T14:37:39Z,Sulfur_Content,ASTM_D4294,3.42,wt_pct,2.5,4.0,Pass,R.Davis,XRF_001,No,High sulfur typical
+LIMS_008,S2024_003,MAYA,2025-09-02T19:33:32Z,Asphaltenes,ASTM_D3279,12.4,wt_pct,8.0,15.0,Pass,R.Davis,ASP_001,No,High asphaltenes
+LIMS_009,S2024_004,ARB,2025-09-03T05:25:19Z,API_Gravity,ASTM_D287,33.1,deg_API,32.0,35.0,Pass,L.Anderson,DEN_001,No,Medium crude
+LIMS_010,S2024_004,ARB,2025-09-03T10:21:13Z,Sulfur_Content,ASTM_D4294,1.79,wt_pct,1.5,2.5,Pass,L.Anderson,XRF_001,No,Medium sour
+LIMS_011,S2024_005,URALS,2025-09-12T01:28:36Z,API_Gravity,ASTM_D287,31.8,deg_API,30.0,34.0,Pass,T.Brown,DEN_001,No,Typical Urals
+LIMS_012,S2024_005,URALS,2025-09-12T06:24:30Z,Sulfur_Content,ASTM_D4294,1.28,wt_pct,1.0,2.0,Pass,T.Brown,XRF_001,No,Medium sulfur
+LIMS_013,S2024_006,SAHARA,2025-09-12T16:16:17Z,API_Gravity,ASTM_D287,44.2,deg_API,42.0,46.0,Pass,N.Garcia,DEN_001,No,Light crude
+LIMS_014,S2024_006,SAHARA,2025-09-12T21:12:10Z,Sulfur_Content,ASTM_D4294,0.09,wt_pct,0.0,0.3,Pass,N.Garcia,XRF_001,No,Very sweet
+LIMS_015,S2024_007,CANADIAN_HEAVY,2025-09-23T18:34:22Z,API_Gravity,ASTM_D287,20.3,deg_API,18.0,22.0,Pass,P.Miller,DEN_001,No,Heavy oil sands
+LIMS_016,S2024_007,CANADIAN_HEAVY,2025-09-24T01:58:12Z,Sulfur_Content,ASTM_D4294,3.85,wt_pct,3.0,5.0,Pass,P.Miller,XRF_001,No,High sulfur bitumen
+LIMS_017,S2024_007,CANADIAN_HEAVY,2025-09-24T09:22:02Z,Viscosity,ASTM_D445,125.4,cSt,100.0,200.0,Pass,P.Miller,VIS_001,No,High viscosity
+LIMS_018,S2024_008,NIGERIAN_LIGHT,2025-09-24T14:17:55Z,API_Gravity,ASTM_D287,37.6,deg_API,36.0,39.0,Pass,S.Lee,DEN_001,No,West African light
+LIMS_019,S2024_008,NIGERIAN_LIGHT,2025-09-24T19:13:49Z,Sulfur_Content,ASTM_D4294,0.13,wt_pct,0.0,0.3,Pass,S.Lee,XRF_001,No,Very sweet crude

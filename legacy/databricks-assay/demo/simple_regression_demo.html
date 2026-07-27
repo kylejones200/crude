@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crude Assay Regression Demo - Standalone</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.2em;
+        }
+
+        .demo-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .input-panel {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .input-panel h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            color: #495057;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .input-group input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #dee2e6;
+            outline: none;
+            -webkit-appearance: none;
+            margin-bottom: 10px;
+        }
+
+        .input-group input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+        }
+
+        .input-value {
+            display: flex;
+            justify-content: space-between;
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        .current-value {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .results-panel {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .results-panel h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .prediction-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .prediction-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border-left: 4px solid #007bff;
+        }
+
+        .prediction-card h3 {
+            color: #495057;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .prediction-value {
+            color: #007bff;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            height: 400px;
+        }
+
+        .chart-title {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .sample-data {
+            background: #e8f5e8;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .sample-data h3 {
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+
+        .sample-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .sample-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s;
+        }
+
+        .sample-button:hover {
+            background: #218838;
+        }
+
+        .info-panel {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .info-panel h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .info-panel p {
+            color: #856404;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .demo-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛢️ Crude Assay Regression Demo</h1>
+            <p>Interactive predictions for crude oil properties and valuations</p>
+        </div>
+
+        <div class="demo-content">
+            <div class="input-panel">
+                <h2>Assay Parameters</h2>
+                
+                <div class="input-group">
+                    <label for="api-gravity">API Gravity (°API)</label>
+                    <input type="range" id="api-gravity" min="15" max="45" value="33" step="0.5">
+                    <div class="input-value">
+                        <span>Heavy (15°)</span>
+                        <span class="current-value" id="api-value">33.0</span>
+                        <span>Light (45°)</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="sulfur-content">Sulfur Content (wt%)</label>
+                    <input type="range" id="sulfur-content" min="0.1" max="5.0" value="1.8" step="0.1">
+                    <div class="input-value">
+                        <span>Sweet (0.1%)</span>
+                        <span class="current-value" id="sulfur-value">1.8</span>
+                        <span>Sour (5.0%)</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="light-cuts">Light Cuts (%)</label>
+                    <input type="range" id="light-cuts" min="15" max="55" value="35" step="1">
+                    <div class="input-value">
+                        <span>Low Yield</span>
+                        <span class="current-value" id="light-value">35%</span>
+                        <span>High Yield</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="middle-cuts">Middle Distillates (%)</label>
+                    <input type="range" id="middle-cuts" min="25" max="65" value="45" step="1">
+                    <div class="input-value">
+                        <span>Low Yield</span>
+                        <span class="current-value" id="middle-value">45%</span>
+                        <span>High Yield</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="heavy-cuts">Heavy Cuts (%)</label>
+                    <input type="range" id="heavy-cuts" min="5" max="45" value="20" step="1">
+                    <div class="input-value">
+                        <span>Low Yield</span>
+                        <span class="current-value" id="heavy-value">20%</span>
+                        <span>High Yield</span>
+                    </div>
+                </div>
+
+                <div class="sample-data">
+                    <h3>Load Sample Crudes</h3>
+                    <div class="sample-buttons">
+                        <button class="sample-button" onclick="loadSample('arab-light')">Arab Light</button>
+                        <button class="sample-button" onclick="loadSample('west-african')">West African</button>
+                        <button class="sample-button" onclick="loadSample('mars')">Mars</button>
+                        <button class="sample-button" onclick="loadSample('wti')">WTI</button>
+                        <button class="sample-button" onclick="loadSample('heavy-maya')">Maya Heavy</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-panel">
+                <h2>Predicted Values</h2>
+                
+                <div class="prediction-cards">
+                    <div class="prediction-card">
+                        <h3>Gross Value</h3>
+                        <div class="prediction-value" id="gross-value">$84.50</div>
+                        <small>/bbl</small>
+                    </div>
+                    <div class="prediction-card">
+                        <h3>Netback Value</h3>
+                        <div class="prediction-value" id="netback-value">$82.75</div>
+                        <small>/bbl</small>
+                    </div>
+                    <div class="prediction-card">
+                        <h3>Quality Score</h3>
+                        <div class="prediction-value" id="quality-score">7.8</div>
+                        <small>/10</small>
+                    </div>
+                    <div class="prediction-card">
+                        <h3>Refinery Yield</h3>
+                        <div class="prediction-value" id="refinery-yield">85.2</div>
+                        <small>%</small>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-title">API Gravity vs Gross Value Relationship</div>
+                    <canvas id="main-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <h3>About This Demo</h3>
+            <p>
+                This standalone demonstration shows how crude oil properties can be used to predict economic 
+                values using regression analysis. The models simulate realistic relationships between API gravity, 
+                sulfur content, distillation cuts, and resulting crude values. Adjust the parameters above to see 
+                how different crude characteristics affect valuation predictions in real-time.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Sample crude data
+        const sampleCrudes = {
+            'arab-light': { api: 33.0, sulfur: 1.8, light: 35, middle: 45, heavy: 20 },
+            'west-african': { api: 36.5, sulfur: 0.25, light: 40, middle: 45, heavy: 15 },
+            'mars': { api: 29.0, sulfur: 2.0, light: 25, middle: 45, heavy: 30 },
+            'wti': { api: 39.6, sulfur: 0.24, light: 45, middle: 40, heavy: 15 },
+            'heavy-maya': { api: 22.0, sulfur: 3.4, light: 20, middle: 35, heavy: 45 }
+        };
+
+        // Product prices
+        const productPrices = {
+            lights: 88.0,
+            middles: 82.0,
+            heavies: 75.0
+        };
+
+        let chart;
+
+        // Initialize the demo
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSliders();
+            initializeChart();
+            updatePredictions();
+        });
+
+        function initializeSliders() {
+            const sliders = ['api-gravity', 'sulfur-content', 'light-cuts', 'middle-cuts', 'heavy-cuts'];
+            
+            sliders.forEach(sliderId => {
+                const slider = document.getElementById(sliderId);
+                slider.addEventListener('input', function() {
+                    updateSliderValue(sliderId);
+                    normalizeCuts();
+                    updatePredictions();
+                    updateChart();
+                });
+                updateSliderValue(sliderId);
+            });
+        }
+
+        function updateSliderValue(sliderId) {
+            const slider = document.getElementById(sliderId);
+            let value = parseFloat(slider.value);
+            let displayValue;
+            
+            if (sliderId.includes('cuts')) {
+                displayValue = value + '%';
+            } else {
+                displayValue = value.toFixed(1);
+            }
+            
+            const valueElement = document.getElementById(sliderId.replace('-', '-').split('-')[0] + '-value');
+            if (valueElement) {
+                valueElement.textContent = displayValue;
+            }
+        }
+
+        function normalizeCuts() {
+            const lightSlider = document.getElementById('light-cuts');
+            const middleSlider = document.getElementById('middle-cuts');
+            const heavySlider = document.getElementById('heavy-cuts');
+            
+            let light = parseInt(lightSlider.value);
+            let middle = parseInt(middleSlider.value);
+            let heavy = parseInt(heavySlider.value);
+            
+            const total = light + middle + heavy;
+            
+            if (total !== 100) {
+                const diff = 100 - total;
+                const adjustment = Math.round(diff / 3);
+                
+                light = Math.max(15, Math.min(55, light + adjustment));
+                middle = Math.max(25, Math.min(65, middle + adjustment));
+                heavy = 100 - light - middle;
+                heavy = Math.max(5, Math.min(45, heavy));
+                
+                // Adjust if needed
+                if (light + middle + heavy !== 100) {
+                    const finalDiff = 100 - (light + middle + heavy);
+                    middle += finalDiff;
+                }
+                
+                lightSlider.value = light;
+                middleSlider.value = middle;
+                heavySlider.value = heavy;
+                
+                updateSliderValue('light-cuts');
+                updateSliderValue('middle-cuts');
+                updateSliderValue('heavy-cuts');
+            }
+        }
+
+        function getCurrentInputs() {
+            return {
+                api: parseFloat(document.getElementById('api-gravity').value),
+                sulfur: parseFloat(document.getElementById('sulfur-content').value),
+                light: parseInt(document.getElementById('light-cuts').value) / 100,
+                middle: parseInt(document.getElementById('middle-cuts').value) / 100,
+                heavy: parseInt(document.getElementById('heavy-cuts').value) / 100
+            };
+        }
+
+        function calculateGrossValue(light, middle, heavy) {
+            return light * productPrices.lights + middle * productPrices.middles + heavy * productPrices.heavies;
+        }
+
+        function calculateQualityScore(api, sulfur) {
+            const apiScore = Math.min(10, api / 4);
+            const sulfurScore = Math.max(0, 10 - sulfur * 2.5);
+            return (apiScore + sulfurScore) / 2;
+        }
+
+        function calculateRefineryYield(api, sulfur, light, middle, heavy) {
+            // Simulate refinery yield based on crude properties
+            const apiBonus = (api - 20) * 1.5;
+            const sulfurPenalty = sulfur * 5;
+            const lightBonus = light * 20;
+            const middleBonus = middle * 15;
+            
+            let yield = 70 + apiBonus - sulfurPenalty + lightBonus + middleBonus;
+            return Math.max(60, Math.min(95, yield));
+        }
+
+        function updatePredictions() {
+            const inputs = getCurrentInputs();
+            
+            // Calculate predictions using simplified models
+            const grossValue = calculateGrossValue(inputs.light, inputs.middle, inputs.heavy);
+            
+            // Add some API gravity correlation to gross value
+            const apiAdjustment = (inputs.api - 30) * 0.8;
+            const adjustedGrossValue = grossValue + apiAdjustment;
+            
+            const netbackValue = adjustedGrossValue - (2.5 - (inputs.api - 20) * 0.05); // Freight varies by crude type
+            const qualityScore = calculateQualityScore(inputs.api, inputs.sulfur);
+            const refineryYield = calculateRefineryYield(inputs.api, inputs.sulfur, inputs.light, inputs.middle, inputs.heavy);
+            
+            // Update display
+            document.getElementById('gross-value').textContent = '$' + adjustedGrossValue.toFixed(2);
+            document.getElementById('netback-value').textContent = '$' + netbackValue.toFixed(2);
+            document.getElementById('quality-score').textContent = qualityScore.toFixed(1);
+            document.getElementById('refinery-yield').textContent = refineryYield.toFixed(1);
+        }
+
+        function initializeChart() {
+            const ctx = document.getElementById('main-chart').getContext('2d');
+            
+            // Generate synthetic data points for the regression line
+            const dataPoints = [];
+            for (let api = 15; api <= 45; api += 0.5) {
+                const baseValue = 0.35 * productPrices.lights + 0.45 * productPrices.middles + 0.20 * productPrices.heavies;
+                const apiAdjustment = (api - 30) * 0.8;
+                const value = baseValue + apiAdjustment + (Math.random() - 0.5) * 3; // Add some noise
+                dataPoints.push({x: api, y: value});
+            }
+            
+            chart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Historical Data',
+                        data: dataPoints,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        pointRadius: 3
+                    }, {
+                        label: 'Current Input',
+                        data: [],
+                        backgroundColor: 'rgba(255, 99, 132, 1)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        pointRadius: 10,
+                        pointHoverRadius: 12
+                    }, {
+                        label: 'Trend Line',
+                        data: [
+                            {x: 15, y: 15 * 0.8 + 82.5 - 30 * 0.8},
+                            {x: 45, y: 45 * 0.8 + 82.5 - 30 * 0.8}
+                        ],
+                        backgroundColor: 'rgba(255, 206, 86, 0)',
+                        borderColor: 'rgba(255, 206, 86, 1)',
+                        borderWidth: 3,
+                        pointRadius: 0,
+                        type: 'line',
+                        tension: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'API Gravity (°API)',
+                                font: { size: 14, weight: 'bold' }
+                            },
+                            min: 15,
+                            max: 45
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Gross Value ($/bbl)',
+                                font: { size: 14, weight: 'bold' }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+
+            updateChart();
+        }
+
+        function updateChart() {
+            const inputs = getCurrentInputs();
+            const grossValue = calculateGrossValue(inputs.light, inputs.middle, inputs.heavy);
+            const apiAdjustment = (inputs.api - 30) * 0.8;
+            const adjustedGrossValue = grossValue + apiAdjustment;
+
+            chart.data.datasets[1].data = [{x: inputs.api, y: adjustedGrossValue}];
+            chart.update('none'); // No animation for smooth updates
+        }
+
+        function loadSample(crudeType) {
+            const sample = sampleCrudes[crudeType];
+            if (!sample) return;
+
+            document.getElementById('api-gravity').value = sample.api;
+            document.getElementById('sulfur-content').value = sample.sulfur;
+            document.getElementById('light-cuts').value = sample.light;
+            document.getElementById('middle-cuts').value = sample.middle;
+            document.getElementById('heavy-cuts').value = sample.heavy;
+
+            // Update all slider values
+            ['api-gravity', 'sulfur-content', 'light-cuts', 'middle-cuts', 'heavy-cuts'].forEach(updateSliderValue);
+
+            updatePredictions();
+            updateChart();
+        }
+    </script>
+</body>
+</html>

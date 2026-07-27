@@ -1,0 +1,7 @@
+data_source,system_name,data_type,table_name,update_frequency,data_quality_score,connection_type,last_update_timestamp,record_count,status
+PI,OSIsoft_PI_System,Real_Time_Operations,pi_system_data,15_minutes,0.98,OPC_UA,2024-01-15T08:15:00Z,2850000,Active
+Intertek,Intertek_Lab_Services,Laboratory_Analysis,intertek_lab_reports,Daily,0.99,SFTP,2024-01-15T06:00:00Z,1250,Active
+BLISS,Blend_Optimization,Recipe_Management,bliss_blend_recipes,Hourly,0.97,REST_API,2024-01-15T07:30:00Z,45,Active
+LIMS,Laboratory_LIMS,Quality_Control,lims_quality_tests,Continuous,0.99,Database_Link,2024-01-15T08:00:00Z,8500,Active
+AspenTech,Aspen_PIMS,Planning_Optimization,aspentech_planning,Daily,0.96,File_Transfer,2024-01-15T05:00:00Z,120,Active
+Haverly,HPS_Planning_System,LP_MILP_Optimization,haverly_optimization,Daily,0.98,Database_Link,2024-01-15T04:30:00Z,85,Active

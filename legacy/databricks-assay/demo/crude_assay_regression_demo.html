@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crude Assay Regression Demo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/regression-js/2.0.1/regression.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.2em;
+        }
+
+        .demo-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .input-panel {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .input-panel h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            color: #495057;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .input-group input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #dee2e6;
+            outline: none;
+            -webkit-appearance: none;
+            margin-bottom: 10px;
+        }
+
+        .input-group input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+        }
+
+        .input-group input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+            border: none;
+        }
+
+        .input-value {
+            display: flex;
+            justify-content: space-between;
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        .current-value {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .results-panel {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .results-panel h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .prediction-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .prediction-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border-left: 4px solid #007bff;
+        }
+
+        .prediction-card h3 {
+            color: #495057;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .prediction-value {
+            color: #007bff;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .chart-title {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .sample-data {
+            background: #e8f5e8;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .sample-data h3 {
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+
+        .sample-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .sample-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s;
+        }
+
+        .sample-button:hover {
+            background: #218838;
+        }
+
+        @media (max-width: 768px) {
+            .demo-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛢️ Crude Assay Regression Demo</h1>
+            <p>Interactive machine learning predictions for crude oil properties and valuations</p>
+        </div>
+
+        <div class="demo-content">
+            <div class="input-panel">
+                <h2>Assay Parameters</h2>
+                
+                <div class="input-group">
+                    <label for="api-gravity">API Gravity (°API)</label>
+                    <input type="range" id="api-gravity" min="15" max="45" value="33" step="0.5">
+                    <div class="input-value">
+                        <span>Light Crude (>31.1)</span>
+                        <span class="current-value" id="api-value">33.0</span>
+                        <span>Heavy Crude (<22.3)</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="sulfur-content">Sulfur Content (wt%)</label>
+                    <input type="range" id="sulfur-content" min="0.1" max="5.0" value="1.8" step="0.1">
+                    <div class="input-value">
+                        <span>Sweet (<0.5%)</span>
+                        <span class="current-value" id="sulfur-value">1.8</span>
+                        <span>Sour (>2.5%)</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="light-cuts">Light Cuts (%)</label>
+                    <input type="range" id="light-cuts" min="0.15" max="0.55" value="0.35" step="0.01">
+                    <div class="input-value">
+                        <span>Low Yield</span>
+                        <span class="current-value" id="light-value">35.0%</span>
+                        <span>High Yield</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="middle-cuts">Middle Distillates (%)</label>
+                    <input type="range" id="middle-cuts" min="0.25" max="0.65" value="0.45" step="0.01">
+                    <div class="input-value">
+                        <span>Low Yield</span>
+                        <span class="current-value" id="middle-value">45.0%</span>
+                        <span>High Yield</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="heavy-cuts">Heavy Cuts (%)</label>
+                    <input type="range" id="heavy-cuts" min="0.05" max="0.45" value="0.20" step="0.01">
+                    <div class="input-value">
+                        <span>Low Yield</span>
+                        <span class="current-value" id="heavy-value">20.0%</span>
+                        <span>High Yield</span>
+                    </div>
+                </div>
+
+                <div class="sample-data">
+                    <h3>Load Sample Crudes</h3>
+                    <div class="sample-buttons">
+                        <button class="sample-button" onclick="loadSample('arab-light')">Arab Light</button>
+                        <button class="sample-button" onclick="loadSample('west-african')">West African</button>
+                        <button class="sample-button" onclick="loadSample('mars')">Mars</button>
+                        <button class="sample-button" onclick="loadSample('wti')">WTI</button>
+                        <button class="sample-button" onclick="loadSample('heavy-maya')">Maya Heavy</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-panel">
+                <h2>Regression Predictions</h2>
+                
+                <div class="prediction-cards">
+                    <div class="prediction-card">
+                        <h3>Gross Value</h3>
+                        <div class="prediction-value" id="gross-value">$84.50</div>
+                        <small>/bbl</small>
+                    </div>
+                    <div class="prediction-card">
+                        <h3>Netback Value</h3>
+                        <div class="prediction-value" id="netback-value">$82.75</div>
+                        <small>/bbl</small>
+                    </div>
+                    <div class="prediction-card">
+                        <h3>Quality Score</h3>
+                        <div class="prediction-value" id="quality-score">7.8</div>
+                        <small>/10</small>
+                    </div>
+                    <div class="prediction-card">
+                        <h3>Processing Index</h3>
+                        <div class="prediction-value" id="processing-index">85.2</div>
+                        <small>pts</small>
+                    </div>
+                </div>
+
+                <div class="chart-grid">
+                    <div class="chart-container">
+                        <div class="chart-title">API vs Gross Value Regression</div>
+                        <canvas id="api-value-chart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-title">Sulfur vs Quality Score</div>
+                        <canvas id="sulfur-quality-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-title">Distillation Cut Analysis</div>
+                    <canvas id="cuts-analysis-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample crude data for regression training
+        const sampleCrudes = {
+            'arab-light': { api: 33.0, sulfur: 1.8, light: 0.35, middle: 0.45, heavy: 0.20 },
+            'west-african': { api: 36.5, sulfur: 0.25, light: 0.40, middle: 0.45, heavy: 0.15 },
+            'mars': { api: 29.0, sulfur: 2.0, light: 0.25, middle: 0.45, heavy: 0.30 },
+            'wti': { api: 39.6, sulfur: 0.24, light: 0.45, middle: 0.40, heavy: 0.15 },
+            'heavy-maya': { api: 22.0, sulfur: 3.4, light: 0.20, middle: 0.35, heavy: 0.45 }
+        };
+
+        // Product prices (from sample data)
+        const productPrices = {
+            lights: 88.0,
+            middles: 82.0,
+            heavies: 75.0
+        };
+
+        // Regression models and charts
+        let charts = {};
+        let regressionData = [];
+
+        // Initialize the demo
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSliders();
+            generateRegressionData();
+            initializeCharts();
+            updatePredictions();
+        });
+
+        function initializeSliders() {
+            const sliders = ['api-gravity', 'sulfur-content', 'light-cuts', 'middle-cuts', 'heavy-cuts'];
+            
+            sliders.forEach(sliderId => {
+                const slider = document.getElementById(sliderId);
+                slider.addEventListener('input', function() {
+                    updateSliderValue(sliderId);
+                    updatePredictions();
+                    updateCharts();
+                });
+                updateSliderValue(sliderId);
+            });
+        }
+
+        function updateSliderValue(sliderId) {
+            const slider = document.getElementById(sliderId);
+            const valueElement = document.getElementById(sliderId.replace('-', '-').split('-')[0] + '-value');
+            
+            let value = parseFloat(slider.value);
+            let displayValue;
+            
+            if (sliderId.includes('cuts')) {
+                displayValue = (value * 100).toFixed(1) + '%';
+            } else {
+                displayValue = value.toFixed(1);
+            }
+            
+            if (valueElement) {
+                valueElement.textContent = displayValue;
+            }
+            
+            // Ensure cuts add up to 100%
+            if (sliderId.includes('cuts')) {
+                normalizeCuts(sliderId);
+            }
+        }
+
+        function normalizeCuts(changedSlider) {
+            const lightSlider = document.getElementById('light-cuts');
+            const middleSlider = document.getElementById('middle-cuts');
+            const heavySlider = document.getElementById('heavy-cuts');
+            
+            let light = parseFloat(lightSlider.value);
+            let middle = parseFloat(middleSlider.value);
+            let heavy = parseFloat(heavySlider.value);
+            
+            const total = light + middle + heavy;
+            
+            if (Math.abs(total - 1.0) > 0.02) {
+                const correction = (1.0 - total) / 2;
+                
+                if (changedSlider !== 'light-cuts') {
+                    light = Math.max(0.15, Math.min(0.55, light + correction));
+                    lightSlider.value = light;
+                }
+                if (changedSlider !== 'middle-cuts') {
+                    middle = Math.max(0.25, Math.min(0.65, middle + correction));
+                    middleSlider.value = middle;
+                }
+                if (changedSlider !== 'heavy-cuts') {
+                    heavy = Math.max(0.05, Math.min(0.45, heavy + correction));
+                    heavySlider.value = heavy;
+                }
+                
+                updateSliderValue('light-cuts');
+                updateSliderValue('middle-cuts');
+                updateSliderValue('heavy-cuts');
+            }
+        }
+
+        function generateRegressionData() {
+            // Generate synthetic but realistic crude assay data for regression
+            regressionData = [];
+            
+            for (let i = 0; i < 50; i++) {
+                const api = 15 + Math.random() * 30;
+                const sulfur = 0.1 + Math.random() * 4.9;
+                const light = 0.15 + Math.random() * 0.4;
+                const middle = 0.25 + Math.random() * 0.4;
+                const heavy = 1.0 - light - middle;
+                
+                // Calculate derived values with some realistic relationships
+                const grossValue = calculateGrossValue(light, middle, heavy);
+                const netbackValue = grossValue - (1.0 + Math.random() * 3.0); // freight costs
+                const qualityScore = calculateQualityScore(api, sulfur);
+                const processingIndex = calculateProcessingIndex(api, sulfur, light, middle, heavy);
+                
+                regressionData.push({
+                    api, sulfur, light, middle, heavy,
+                    grossValue, netbackValue, qualityScore, processingIndex
+                });
+            }
+        }
+
+        function calculateGrossValue(light, middle, heavy) {
+            return light * productPrices.lights + middle * productPrices.middles + heavy * productPrices.heavies;
+        }
+
+        function calculateQualityScore(api, sulfur) {
+            // Higher API and lower sulfur = higher quality
+            const apiScore = Math.min(10, api / 4);
+            const sulfurScore = Math.max(0, 10 - sulfur * 2);
+            return (apiScore + sulfurScore) / 2;
+        }
+
+        function calculateProcessingIndex(api, sulfur, light, middle, heavy) {
+            // Complex processing index based on multiple factors
+            const apiFactor = api * 1.2;
+            const sulfurPenalty = sulfur * 8;
+            const lightBonus = light * 50;
+            const middleBonus = middle * 40;
+            const heavyPenalty = heavy * 20;
+            
+            return Math.max(0, Math.min(100, apiFactor - sulfurPenalty + lightBonus + middleBonus - heavyPenalty));
+        }
+
+        function getCurrentInputs() {
+            return {
+                api: parseFloat(document.getElementById('api-gravity').value),
+                sulfur: parseFloat(document.getElementById('sulfur-content').value),
+                light: parseFloat(document.getElementById('light-cuts').value),
+                middle: parseFloat(document.getElementById('middle-cuts').value),
+                heavy: parseFloat(document.getElementById('heavy-cuts').value)
+            };
+        }
+
+        function updatePredictions() {
+            const inputs = getCurrentInputs();
+            
+            // Calculate predictions
+            const grossValue = calculateGrossValue(inputs.light, inputs.middle, inputs.heavy);
+            const netbackValue = grossValue - 1.75; // simplified freight
+            const qualityScore = calculateQualityScore(inputs.api, inputs.sulfur);
+            const processingIndex = calculateProcessingIndex(inputs.api, inputs.sulfur, inputs.light, inputs.middle, inputs.heavy);
+            
+            // Update display
+            document.getElementById('gross-value').textContent = '$' + grossValue.toFixed(2);
+            document.getElementById('netback-value').textContent = '$' + netbackValue.toFixed(2);
+            document.getElementById('quality-score').textContent = qualityScore.toFixed(1);
+            document.getElementById('processing-index').textContent = processingIndex.toFixed(1);
+        }
+
+        function initializeCharts() {
+            // API vs Gross Value Chart
+            const apiCtx = document.getElementById('api-value-chart').getContext('2d');
+            charts.apiValue = new Chart(apiCtx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Historical Data',
+                        data: regressionData.map(d => ({x: d.api, y: d.grossValue})),
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)'
+                    }, {
+                        label: 'Current Input',
+                        data: [],
+                        backgroundColor: 'rgba(255, 99, 132, 1)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        pointRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { title: { display: true, text: 'API Gravity' } },
+                        y: { title: { display: true, text: 'Gross Value ($/bbl)' } }
+                    },
+                    plugins: { legend: { display: true } }
+                }
+            });
+
+            // Sulfur vs Quality Chart
+            const sulfurCtx = document.getElementById('sulfur-quality-chart').getContext('2d');
+            charts.sulfurQuality = new Chart(sulfurCtx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Historical Data',
+                        data: regressionData.map(d => ({x: d.sulfur, y: d.qualityScore})),
+                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                        borderColor: 'rgba(75, 192, 192, 1)'
+                    }, {
+                        label: 'Current Input',
+                        data: [],
+                        backgroundColor: 'rgba(255, 99, 132, 1)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        pointRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { title: { display: true, text: 'Sulfur Content (wt%)' } },
+                        y: { title: { display: true, text: 'Quality Score' } }
+                    },
+                    plugins: { legend: { display: true } }
+                }
+            });
+
+            // Cuts Analysis Chart
+            const cutsCtx = document.getElementById('cuts-analysis-chart').getContext('2d');
+            charts.cutsAnalysis = new Chart(cutsCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Light Cuts', 'Middle Distillates', 'Heavy Cuts'],
+                    datasets: [{
+                        data: [35, 45, 20],
+                        backgroundColor: [
+                            'rgba(255, 206, 86, 0.8)',
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(153, 102, 255, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(153, 102, 255, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            updateCharts();
+        }
+
+        function updateCharts() {
+            const inputs = getCurrentInputs();
+            const grossValue = calculateGrossValue(inputs.light, inputs.middle, inputs.heavy);
+            const qualityScore = calculateQualityScore(inputs.api, inputs.sulfur);
+
+            // Update API vs Gross Value chart
+            charts.apiValue.data.datasets[1].data = [{x: inputs.api, y: grossValue}];
+            charts.apiValue.update();
+
+            // Update Sulfur vs Quality chart
+            charts.sulfurQuality.data.datasets[1].data = [{x: inputs.sulfur, y: qualityScore}];
+            charts.sulfurQuality.update();
+
+            // Update Cuts Analysis chart
+            charts.cutsAnalysis.data.datasets[0].data = [
+                inputs.light * 100,
+                inputs.middle * 100,
+                inputs.heavy * 100
+            ];
+            charts.cutsAnalysis.update();
+        }
+
+        function loadSample(crudeType) {
+            const sample = sampleCrudes[crudeType];
+            if (!sample) return;
+
+            document.getElementById('api-gravity').value = sample.api;
+            document.getElementById('sulfur-content').value = sample.sulfur;
+            document.getElementById('light-cuts').value = sample.light;
+            document.getElementById('middle-cuts').value = sample.middle;
+            document.getElementById('heavy-cuts').value = sample.heavy;
+
+            // Update all slider values and predictions
+            updateSliderValue('api-gravity');
+            updateSliderValue('sulfur-content');
+            updateSliderValue('light-cuts');
+            updateSliderValue('middle-cuts');
+            updateSliderValue('heavy-cuts');
+
+            updatePredictions();
+            updateCharts();
+        }
+    </script>
+</body>
+</html>
