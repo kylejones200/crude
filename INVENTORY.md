@@ -97,14 +97,14 @@ Local `assay/` and `assay 2/` folders were consolidated into this repo:
 
 | Source | Destination | Notes |
 |--------|-------------|-------|
-| `assay/` (Flask skeleton + docs) | `legacy/docs/` + removed hollow tree | Docs only; broken `app.py` skeleton deleted |
+| `assay/` (Flask skeleton + docs) | removed | Hollow skeleton and handoff docs deleted; migration map in this file |
 | `assay 2/` (Databricks + regression) | removed | Databricks archive deleted July 2026; sample CSVs in `fixtures/legacy-sample-data/` |
 | `assay 2/resources/sample_data/` | `fixtures/legacy-sample-data/` | 49-crude CSV corpus + PI/Aspen samples |
 
-See [`legacy/README.md`](legacy/README.md).
-
 ## Cleanup (July 2026)
 
-- Removed hollow `legacy/python-assay/` (empty `routes/`, `services/`, `src/`); kept audit docs in `legacy/docs/`
+- Removed hollow `legacy/python-assay/` (empty `routes/`, `services/`, `src/`)
 - Downsampled `fixtures/legacy-sample-data/pi_system_data.csv` and `aspentech_planning.csv` to 101 rows
+- Removed unused `fixtures/parity/legacy-streamlit/optimization_*.lp` and `.mps` artifacts
 - Removed `legacy/databricks-assay/` (Databricks notebooks, regression demos, lakehouse stubs)
+- Removed `legacy/docs/` handoff notes (superseded by this inventory and `README.md`)
