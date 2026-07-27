@@ -29,7 +29,7 @@ crude/
 ├── apps/cli/        # `crude` binary
 ├── apps/api/        # axum HTTP API on :8080
 ├── fixtures/        # scenarios, parity goldens, assay samples, legacy-sample-data
-├── legacy/          # archived Python repos (Flask + Databricks) — reference only
+├── legacy/          # archived Flask-era docs (reference only)
 ├── schemas/         # JSON Schema for scenario YAML contracts
 ├── docs/units.md    # units, tolerances, validation bounds
 └── tests/           # parity, vertical path, benchmarks

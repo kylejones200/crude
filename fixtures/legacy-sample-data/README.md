@@ -1,6 +1,6 @@
 # Legacy sample data
 
-CSV and JSON fixtures from the archived Databricks crude-assay repo (`legacy/databricks-assay/`). Used for demos, notebook replay, and future assay corpus expansion.
+CSV and JSON fixtures from the archived Python crude-assay demos. Useful for assay corpus expansion and manual scenario building.
 
 | File | Description |
 |------|-------------|
