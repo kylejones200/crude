@@ -70,6 +70,15 @@ fn resolve_fixtures_root(explicit: Option<PathBuf>) -> PathBuf {
     if let Some(path) = explicit {
         return path;
     }
+    if let Ok(env) = std::env::var("CRUDE_FIXTURES_ROOT") {
+        return PathBuf::from(env);
+    }
+    if let Ok(env) = std::env::var("CRUDE_DATA_ROOT") {
+        let first = env.split(',').next().unwrap_or("").trim();
+        if !first.is_empty() {
+            return PathBuf::from(first);
+        }
+    }
     for candidate in [PathBuf::from("fixtures"), PathBuf::from("crude/fixtures")] {
         if candidate.join("assays/wti.json").is_file() {
             return candidate;

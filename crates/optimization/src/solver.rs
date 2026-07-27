@@ -79,30 +79,24 @@ pub fn optimize_scenario(scenario: &Scenario) -> OptimizationResult<Optimization
 
     if let Some(api_c) = &product.constraints.api_gravity {
         if let Some(min_api) = api_c.min {
-            let api_terms = weighted_property_terms(&vol_vars, scenario, &crudes, |c| {
-                c.assay.api_gravity().unwrap_or(0.0)
-            });
+            let api_terms = weighted_assay_terms(&vol_vars, scenario, |r| r.api_gravity)?;
             model = model.with(constraint!(api_terms >= min_api * total_volume));
         }
         if let Some(max_api) = api_c.max {
-            let api_terms = weighted_property_terms(&vol_vars, scenario, &crudes, |c| {
-                c.assay.api_gravity().unwrap_or(0.0)
-            });
+            let api_terms = weighted_assay_terms(&vol_vars, scenario, |r| r.api_gravity)?;
             model = model.with(constraint!(api_terms <= max_api * total_volume));
         }
     }
 
     if let Some(s_c) = &product.constraints.sulfur_wt_pct {
         if let Some(max_s) = s_c.max {
-            let sulfur_terms = weighted_property_terms(&vol_vars, scenario, &crudes, |c| {
-                c.assay.sulfur_wt_pct().unwrap_or(0.0)
-            });
+            let sulfur_terms =
+                weighted_assay_terms(&vol_vars, scenario, |r| r.sulfur_wt_pct)?;
             model = model.with(constraint!(sulfur_terms <= max_s * total_volume));
         }
         if let Some(min_s) = s_c.min {
-            let sulfur_terms = weighted_property_terms(&vol_vars, scenario, &crudes, |c| {
-                c.assay.sulfur_wt_pct().unwrap_or(0.0)
-            });
+            let sulfur_terms =
+                weighted_assay_terms(&vol_vars, scenario, |r| r.sulfur_wt_pct)?;
             model = model.with(constraint!(sulfur_terms >= min_s * total_volume));
         }
     }
@@ -158,7 +152,11 @@ pub fn optimize_scenario(scenario: &Scenario) -> OptimizationResult<Optimization
 
     Ok(OptimizationOutput {
         scenario_name: scenario.name.clone(),
-        status: SolverStatus::Optimal,
+        status: if constraint_report.satisfied {
+            SolverStatus::Optimal
+        } else {
+            SolverStatus::Infeasible
+        },
         objective_value_usd: objective_value,
         total_volume_bbl: total_volume,
         blend_api_gravity: get_blend_property(&blend_eval, PropertyId::ApiGravity),
@@ -193,25 +191,27 @@ fn sum_variables(vars: &[Variable]) -> Expression {
     iter.fold(Expression::from_other_affine(first), |acc, v| acc + v)
 }
 
-fn weighted_property_terms(
+fn weighted_assay_terms(
     vol_vars: &[Variable],
     scenario: &Scenario,
-    crudes: &HashMap<CrudeId, crude_domain::Crude>,
-    property: impl Fn(&crude_domain::Crude) -> f64,
-) -> Expression {
-    vol_vars
-        .iter()
-        .copied()
-        .enumerate()
-        .map(|(i, v)| {
-            let coeff = crudes
-                .get(&CrudeId::new(&scenario.available_crudes[i].crude))
-                .map(&property)
-                .unwrap_or(0.0);
-            coeff * v
-        })
-        .reduce(|a, b| a + b)
-        .expect("at least one crude variable")
+    property: impl Fn(&crude_scenarios::CrudeAssayRef) -> f64,
+) -> OptimizationResult<Expression> {
+    let mut expr: Option<Expression> = None;
+    for (i, v) in vol_vars.iter().copied().enumerate() {
+        let crude_id = &scenario.available_crudes[i].crude;
+        let assay = scenario
+            .crudes
+            .get(crude_id)
+            .ok_or_else(|| OptimizationError::Validation(format!(
+                "missing crude assay: {crude_id}"
+            )))?;
+        let term = property(assay) * v;
+        expr = Some(match expr {
+            None => Expression::from_other_affine(term),
+            Some(acc) => acc + term,
+        });
+    }
+    expr.ok_or_else(|| OptimizationError::Validation("no crude variables".into()))
 }
 
 fn product_constraints_to_domain(c: &ProductConstraint) -> ProductConstraints {

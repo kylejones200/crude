@@ -205,6 +205,41 @@ pub fn compare_runs(paths: &[PathBuf]) -> StorageResult<RunComparison> {
 }
 
 #[cfg(test)]
+mod compare_tests {
+    use super::*;
+    use crate::run::save_inventory_run;
+    use crude_optimization::{InventoryOptimizationOutput, SolverStatus};
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    fn temp_runs_dir() -> PathBuf {
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        std::env::temp_dir().join(format!("crude-compare-test-{nanos}"))
+    }
+
+    #[test]
+    fn compare_runs_loads_summaries() {
+        let dir = temp_runs_dir();
+        let result = InventoryOptimizationOutput {
+            scenario_name: "cmp".into(),
+            status: SolverStatus::Optimal,
+            objective_value_usd: 100.0,
+            purchase_plan: vec![],
+            inventory_plan: vec![],
+            shadow_prices: vec![],
+            message: "ok".into(),
+        };
+        let path = save_inventory_run(&dir.join("cmp-inventory.json"), &result).unwrap();
+        let comparison = compare_runs(&[path]).unwrap();
+        assert_eq!(comparison.runs.len(), 1);
+        assert_eq!(comparison.runs[0].scenario_name, "cmp");
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
     use crude_optimization::SolverStatus;

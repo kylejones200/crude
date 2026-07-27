@@ -71,9 +71,6 @@ fn find_run_path_inner(dir: &Path, run_id: &str) -> StorageResult<Option<PathBuf
         if path.extension().and_then(|e| e.to_str()) != Some("json") {
             continue;
         }
-        if path.file_stem().and_then(|s| s.to_str()) == Some(run_id) {
-            return Ok(Some(path));
-        }
         if let Ok(record) = load_run(&path) {
             if record.run_id == run_id {
                 return Ok(Some(path));

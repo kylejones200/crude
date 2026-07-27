@@ -380,9 +380,11 @@ dependencies = [
  "crude-optimization",
  "crude-scenarios",
  "crude-storage",
+ "http-body-util",
  "serde",
  "serde_json",
  "tokio",
+ "tower",
  "tower-http",
 ]
 
@@ -2017,6 +2019,7 @@ dependencies = [
  "futures-util",
  "http",
  "http-body",
+ "http-body-util",
  "pin-project-lite",
  "tower",
  "tower-layer",

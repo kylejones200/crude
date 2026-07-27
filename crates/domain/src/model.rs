@@ -68,3 +68,58 @@ impl BlendRecipe {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ids::CrudeId;
+
+    #[test]
+    fn blend_recipe_validates_fraction_sum() {
+        let recipe = BlendRecipe {
+            components: vec![
+                BlendComponent {
+                    crude_id: CrudeId::new("wti"),
+                    fraction: 0.5,
+                },
+                BlendComponent {
+                    crude_id: CrudeId::new("maya"),
+                    fraction: 0.5,
+                },
+            ],
+        };
+        recipe.validate().unwrap();
+    }
+
+    #[test]
+    fn blend_recipe_rejects_bad_fraction_sum() {
+        let recipe = BlendRecipe {
+            components: vec![BlendComponent {
+                crude_id: CrudeId::new("wti"),
+                fraction: 0.9,
+            }],
+        };
+        assert!(recipe.validate().is_err());
+    }
+
+    #[test]
+    fn blend_recipe_rejects_empty() {
+        let recipe = BlendRecipe {
+            components: vec![],
+        };
+        assert!(recipe.validate().is_err());
+    }
+
+    #[test]
+    fn assay_reads_api_and_sulfur() {
+        let assay = Assay {
+            bulk_properties: vec![
+                PropertyMeasurement::new(PropertyId::ApiGravity, 39.6),
+                PropertyMeasurement::new(PropertyId::SulfurWtPct, 0.24),
+            ],
+            cuts: vec![],
+        };
+        assert_eq!(assay.api_gravity(), Some(39.6));
+        assert_eq!(assay.sulfur_wt_pct(), Some(0.24));
+    }
+}

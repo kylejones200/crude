@@ -129,6 +129,12 @@ impl Scenario {
                     ac.crude
                 )));
             }
+            if !self.crudes.contains_key(&ac.crude) {
+                return Err(ScenarioError::Validation(format!(
+                    "crude {} listed in available_crudes but missing from crudes assay table",
+                    ac.crude
+                )));
+            }
         }
         Ok(())
     }
@@ -137,10 +143,12 @@ impl Scenario {
         let mut library = HashMap::new();
 
         for ac in &self.available_crudes {
-            let assay_ref = self.crudes.get(&ac.crude);
-            let (api, sulfur) = assay_ref
-                .map(|r| (r.api_gravity, r.sulfur_wt_pct))
-                .unwrap_or((35.0, 1.0));
+            let assay_ref = self
+                .crudes
+                .get(&ac.crude)
+                .expect("validated in Scenario::validate");
+            let api = assay_ref.api_gravity;
+            let sulfur = assay_ref.sulfur_wt_pct;
 
             let id = CrudeId::new(&ac.crude);
             let mut bulk = vec![
@@ -150,25 +158,23 @@ impl Scenario {
                     sulfur,
                 ),
             ];
-            if let Some(r) = assay_ref {
-                if let Some(tan) = r.total_acid_number {
-                    bulk.push(crude_domain::PropertyMeasurement::new(
-                        crude_domain::PropertyId::TotalAcidNumber,
-                        tan,
-                    ));
-                }
-                if let Some(sbn) = r.sbn {
-                    bulk.push(crude_domain::PropertyMeasurement::new(
-                        crude_domain::PropertyId::Sbn,
-                        sbn,
-                    ));
-                }
-                if let Some(in_) = r.insolubility_number {
-                    bulk.push(crude_domain::PropertyMeasurement::new(
-                        crude_domain::PropertyId::InsolubilityNumber,
-                        in_,
-                    ));
-                }
+            if let Some(tan) = assay_ref.total_acid_number {
+                bulk.push(crude_domain::PropertyMeasurement::new(
+                    crude_domain::PropertyId::TotalAcidNumber,
+                    tan,
+                ));
+            }
+            if let Some(sbn) = assay_ref.sbn {
+                bulk.push(crude_domain::PropertyMeasurement::new(
+                    crude_domain::PropertyId::Sbn,
+                    sbn,
+                ));
+            }
+            if let Some(in_) = assay_ref.insolubility_number {
+                bulk.push(crude_domain::PropertyMeasurement::new(
+                    crude_domain::PropertyId::InsolubilityNumber,
+                    in_,
+                ));
             }
 
             library.insert(
@@ -259,5 +265,33 @@ impl BlendScenarioFile {
             .iter()
             .map(|(k, v)| (CrudeId::new(k), *v))
             .collect()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn validate_requires_crude_assay_entries() {
+        let scenario = Scenario {
+            name: "bad".into(),
+            available_crudes: vec![AvailableCrude {
+                crude: "wti".into(),
+                min_volume: 0.0,
+                max_volume: 1000.0,
+                price_per_bbl: 70.0,
+            }],
+            products: vec![ProductSpec {
+                name: "blend".into(),
+                constraints: ProductConstraint::default(),
+            }],
+            objective: Objective {
+                objective_type: ObjectiveType::MinimizeFeedCost,
+            },
+            target_volume_bbl: Some(1000.0),
+            crudes: HashMap::new(),
+        };
+        assert!(scenario.validate().is_err());
     }
 }
