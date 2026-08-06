@@ -34,6 +34,8 @@ struct RunBody {
     input: PathBuf,
     #[serde(default)]
     output: Option<PathBuf>,
+    #[serde(default)]
+    args: Vec<String>,
 }
 
 #[tokio::main]
@@ -98,12 +100,35 @@ async fn preview(State(state): State<AppState>) -> Json<serde_json::Value> {
 async fn run_handler(
     State(state): State<AppState>,
     Json(body): Json<RunBody>,
-) -> Json<serde_json::Value> {
-    let output = body.output.unwrap_or_else(|| state.work_dir.clone());
-    Json(json!({
-        "status": "accepted",
+) -> Result<Json<serde_json::Value>, (axum::http::StatusCode, Json<serde_json::Value>)> {
+    let cli = std::env::var("DOMAIN_CLI").unwrap_or_else(|_| "crude".into());
+    let output = body.output.clone().unwrap_or_else(|| state.work_dir.clone());
+    let mut cmd = tokio::process::Command::new(&cli);
+    cmd.arg(&body.input);
+    if body.input.is_dir() {{
+        cmd.arg("--output").arg(&output);
+    }} else {{
+        cmd.arg(&output);
+    }}
+    for arg in &body.args {{
+        cmd.arg(arg);
+    }}
+    let out = cmd.output().await.map_err(|e| (
+        axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+        Json(json!({{ "code": "spawn_failed", "message": e.to_string(), "details": null }})),
+    ))?;
+    if !out.status.success() {{
+        let message = String::from_utf8_lossy(&out.stderr).into_owned();
+        return Err((
+            axum::http::StatusCode::BAD_REQUEST,
+            Json(json!({{ "code": "run_failed", "message": message, "details": null }})),
+        ));
+    }}
+    Ok(Json(json!({{
+        "status": "ok",
+        "cli": cli,
         "input": body.input,
         "output": output,
-        "message": "Wire domain logic to this handler in a follow-up PR"
-    }))
-}
+        "stdout": String::from_utf8_lossy(&out.stdout).chars().take(4000).collect::<String>()
+    }})))
+}}
