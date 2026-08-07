@@ -44,6 +44,3 @@ crude-optimization = { path = "crates/optimization" }
 crude-scenarios = { path = "crates/scenarios" }
 crude-storage = { path = "crates/storage" }
 crude-doctor = { path = "crates/doctor" }
-[[bin]]
-name = "crude-api"
-path = "src/bin/crude-api.rs"
